@@ -10,7 +10,9 @@ set(HEADERS
 	src/EnvireJointManager.hpp
 	src/EnvireMotorManager.hpp
 	src/EnvireNodeManager.hpp
+	src/EnvireStorageManager.hpp
     src/EnvireManager.hpp
+	src/EnvireDefs.hpp
     PARENT_SCOPE
 )
 

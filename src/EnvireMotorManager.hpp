@@ -303,6 +303,8 @@ namespace mars {
 
       virtual void updatePositionsFromGraph();
 
+      virtual void edit(mars::interfaces::MotorId id, const std::string &key, const std::string &value);
+
     private:
       
       /*

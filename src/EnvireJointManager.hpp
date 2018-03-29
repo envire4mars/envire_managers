@@ -105,12 +105,16 @@ namespace mars {
 
       virtual void updatePositionsFromGraph();
 
+      virtual void edit(mars::interfaces::JointId id, const std::string &key,
+                    const std::string &value);
+
     private:
       unsigned long next_joint_id;
       JointMap simJoints;
       //std::list<mars::interfaces::JointData> simJointsReload;
       mars::interfaces::ControlCenter *control;
       mutable mars::utils::Mutex iMutex;
+
       mars::interfaces::JointManagerInterface* getJointInterface(unsigned long node_id);
       std::list<mars::interfaces::JointData>::iterator getReloadJoint(unsigned long id);
 

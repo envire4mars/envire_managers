@@ -51,7 +51,7 @@
 #include <envire_core/items/Item.hpp>
 #include <envire_core/graph/EnvireGraph.hpp>
 
-
+#include "EnvireStorageManager.hpp"
 
 namespace mars {
   namespace plugins {
@@ -176,16 +176,16 @@ namespace mars {
       using SimMotorItemPtr = envire::core::Item<std::shared_ptr<mars::sim::SimMotor>>::Ptr;
 
       VertexIterator vi_begin, vi_end;
-      boost::tie(vi_begin, vi_end) = control->graph->getVertices();
+      boost::tie(vi_begin, vi_end) = EnvireStorageManager::instance()->getGraph()->getVertices();
       bool jointFound = false;
       
       while ((vi_begin!=vi_end) && (!jointFound))
       {
-        if (control->graph->containsItems<SimJointItem>(*vi_begin))
+        if (EnvireStorageManager::instance()->getGraph()->containsItems<SimJointItem>(*vi_begin))
         {
-          envire::core::FrameId frameName = control->graph->getFrameId(*vi_begin);
+          envire::core::FrameId frameName = EnvireStorageManager::instance()->getGraph()->getFrameId(*vi_begin);
           SimJointItemIterator jri_begin, jri_end;
-          boost::tie(jri_begin, jri_end) = control->graph->getItems<SimJointItem>(frameName); 
+          boost::tie(jri_begin, jri_end) = EnvireStorageManager::instance()->getGraph()->getItems<SimJointItem>(frameName); 
           while ((jri_begin!=jri_end) && (!jointFound))
           {
             std::shared_ptr<mars::sim::SimJoint> simJoint = jri_begin->getData();
@@ -195,7 +195,7 @@ namespace mars {
               jointFound = true;
               simMotor->attachJoint(simJoint.get());
               SimMotorItemPtr simMotorItem(new envire::core::Item<shared_ptr<mars::sim::SimMotor>>(simMotor));
-              control->graph->addItemToFrame(frameName, simMotorItem);
+              EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameName, simMotorItem);
             }
             jri_begin ++;
           }
@@ -604,6 +604,10 @@ namespace mars {
             const std::shared_ptr<mars::sim::SimMotor> sim_motor = node->second;
             sim_motor->refreshPositions();
         }
+    }
+
+    void EnvireMotorManager::edit(MotorId id, const std::string &key, const std::string &value) {
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
     }
 
   } // end of Namespace envire_managers

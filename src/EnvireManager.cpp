@@ -38,6 +38,7 @@
 #include <configmaps/ConfigData.h>
 #include <base/Logging.hpp>
 
+#include "EnvireStorageManager.hpp"
 #include "EnvireMotorManager.hpp"
 #include "EnvireNodeManager.hpp"
 #include "EnvireJointManager.hpp"
@@ -53,22 +54,16 @@ using namespace envire::core;
 EnvireManager::EnvireManager(lib_manager::LibManager *theManager)
 : MarsPluginTemplate(theManager, "EnvireManager") {
 
-    // create graph
-    control->graph = std::shared_ptr<envire::core::EnvireGraph> (new envire::core::EnvireGraph());
-    
-    // init root frame
-    std::string center = "center";
-    control->graph->addFrame(center);
-    
-
-    LOG_INFO("[EnvireManager] set EnvireMotorManager for control->motors");
     control->nodes = new EnvireNodeManager(control, theManager);
+    LOG_DEBUG("[EnvireManager] set EnvireNodeManager as control->nodes");
     control->motors = new EnvireMotorManager(control);
+    LOG_DEBUG("[EnvireManager] set EnvireMotorManager as control->motors");
     control->joints = new EnvireJointManager(control);
+    LOG_DEBUG("[EnvireManager] set EnvireJointManager as control->joints");
 }
 
 void EnvireManager::init() {
-    assert(control->graph != nullptr);
+    assert(EnvireStorageManager::instance()->getGraph() != nullptr);
     motorIndex = 1;
 }
 

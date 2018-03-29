@@ -54,7 +54,6 @@
 #include <string>
 
 namespace mars {
-
   namespace plugins {
     namespace envire_managers {
 

@@ -43,6 +43,8 @@
 #include <mars/interfaces/Logging.hpp>
 #include <mars/data_broker/DataBrokerInterface.h>
 
+#include "EnvireStorageManager.hpp"
+
 namespace mars {
   namespace plugins {
     namespace envire_managers{
@@ -132,7 +134,7 @@ namespace mars {
         newJoint->setPhysicalJoint(newJointInterface);
 
         SimJointItemPtr newJointItemPtr( new SimJointItem(newJoint));        
-        control->graph->addItemToFrame(jointS->frameID, newJointItemPtr);   
+        EnvireStorageManager::instance()->getGraph()->addItemToFrame(jointS->frameID, newJointItemPtr);   
 
         simJoints[jointS->index] = newJointItemPtr;
         iMutex.unlock();
@@ -152,6 +154,7 @@ namespace mars {
       printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       //MutexLocker locker(&iMutex);
       //return simJoints.size();
+      return 0;
     }
 
     void EnvireJointManager::editJoint(mars::interfaces::JointData *jointS) {
@@ -203,6 +206,7 @@ namespace mars {
       //   sprintf(msg, "could not find joint with index: %lu", index);
       //   throw std::runtime_error(msg);
       // }
+      return mars::interfaces::JointData();
     }
 
     void EnvireJointManager::removeJoint(unsigned long index) {
@@ -527,6 +531,95 @@ namespace mars {
       // if(iter == simJoints.end())
       //   return;
       // return iter->second->setUpperLimit(highStop2, 2);
+    }
+    
+    // todo: do we need to edit angle offsets
+    void EnvireJointManager::edit(mars::interfaces::JointId id, const std::string &key,
+                    const std::string &value) {
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+      // MutexLocker locker(&iMutex);
+      // std::map<unsigned long, SimJoint*>::iterator iter = simJoints.find(id);
+      // if (iter != simJoints.end()) {
+      //   if(matchPattern("*/type", key)) {
+      //   }
+      //   else if(matchPattern("*/axis1/*", key)) {
+      //     double v = atof(value.c_str());
+      //     Vector axis = iter->second->getAxis();
+      //     if(key[key.size()-1] == 'x') axis.x() = v;
+      //     else if(key[key.size()-1] == 'y') axis.y() = v;
+      //     else if(key[key.size()-1] == 'z') axis.z() = v;
+      //     iter->second->setAxis(axis);
+      //   }
+      //   else if(matchPattern("*/lowStopAxis1", key)) {
+      //     iter->second->setLowerLimit(atof(value.c_str()));
+      //   }
+      //   else if(matchPattern("*/highStopAxis1", key)) {
+      //     iter->second->setUpperLimit(atof(value.c_str()));
+      //   }
+      //   else if(matchPattern("*/damping_const_constraint_axis1", key)) {
+      //     JointData jd = iter->second->getSJoint();
+      //     jd.damping_const_constraint_axis1 = atof(value.c_str());
+      //     iter->second->setSDParams(&jd);
+      //   }
+      //   else if(matchPattern("*/spring_const_constraint_axis1", key)) {
+      //     JointData jd = iter->second->getSJoint();
+      //     jd.spring_const_constraint_axis1 = atof(value.c_str());
+      //     iter->second->setSDParams(&jd);
+      //   }
+      //   else if(matchPattern("*/axis2/*", key)) {
+      //     double v = atof(value.c_str());
+      //     Vector axis = iter->second->getAxis(2);
+      //     if(key[key.size()-1] == 'x') axis.x() = v;
+      //     else if(key[key.size()-1] == 'y') axis.y() = v;
+      //     else if(key[key.size()-1] == 'z') axis.z() = v;
+      //     iter->second->setAxis(axis, 2);
+      //   }
+      //   else if(matchPattern("*/lowStopAxis2", key)) {
+      //     iter->second->setLowerLimit(atof(value.c_str()), 2);
+      //   }
+      //   else if(matchPattern("*/highStopAxis2", key)) {
+      //     iter->second->setUpperLimit(atof(value.c_str()), 2);
+      //   }
+      //   else if(matchPattern("*/damping_const_constraint_axis2", key)) {
+      //     JointData jd = iter->second->getSJoint();
+      //     jd.damping_const_constraint_axis2 = atof(value.c_str());
+      //     iter->second->setSDParams(&jd);
+      //   }
+      //   else if(matchPattern("*/spring_const_constraint_axis2", key)) {
+      //     JointData jd = iter->second->getSJoint();
+      //     jd.spring_const_constraint_axis2 = atof(value.c_str());
+      //     iter->second->setSDParams(&jd);
+      //   }
+      //   else if(matchPattern("*/anchorpos", key)) {
+      //     NodeId id1 = iter->second->getNodeId();
+      //     NodeId id2 = iter->second->getNodeId(2);
+      //     if(value == "node1") {
+      //       iter->second->setAnchor(control->nodes->getPosition(id1));
+      //     }
+      //     else if(value == "node2") {
+      //       iter->second->setAnchor(control->nodes->getPosition(id2));
+      //     }
+      //     else if(value == "center") {
+      //       Vector pos1 = control->nodes->getPosition(id1);
+      //       Vector pos2 = control->nodes->getPosition(id2);
+      //       iter->second->setAnchor((pos1 + pos2) / 2.);
+      //     }
+      //   }
+      //   else if(matchPattern("*/anchor/*", key)) {
+      //     double v = atof(value.c_str());
+      //     Vector anchor = iter->second->getAnchor();
+      //     if(key[key.size()-1] == 'x') anchor.x() = v;
+      //     else if(key[key.size()-1] == 'y') anchor.y() = v;
+      //     else if(key[key.size()-1] == 'z') anchor.z() = v;
+      //     iter->second->setAnchor(anchor);
+
+      //   }
+      //   else if(matchPattern("*/invertAxis", key)) {
+      //     ConfigItem b;
+      //     b = key;
+      //     iter->second->setInvertAxis(b);
+      //   }
+      // }
     }
 
   }
