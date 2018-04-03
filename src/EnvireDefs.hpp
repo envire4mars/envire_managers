@@ -6,7 +6,7 @@ namespace mars {
     namespace envire_managers {
 
 // TODO: should be asked to node manager
-#define SIM_ROOT_FRAME_NAME std::string("center")
+#define SIM_CENTER_FRAME_NAME std::string("center")
 
 /*// TODO: should be set over config
 #define MLS_FRAME_NAME std::string("mls_01")

@@ -56,7 +56,7 @@ namespace mars {
 
         EnvireStorageManager() {
           graph = std::shared_ptr<envire::core::EnvireGraph> (new envire::core::EnvireGraph());
-          graph->addFrame(SIM_ROOT_FRAME_NAME);
+          graph->addFrame(SIM_CENTER_FRAME_NAME);
         }
 
         std::shared_ptr<envire::core::EnvireGraph> getGraph() {

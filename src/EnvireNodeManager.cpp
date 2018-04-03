@@ -48,7 +48,7 @@
 
 #include <mars/utils/MutexLocker.h>
 
-#include <mars/sim/defines.hpp>
+#include "EnvireDefs.hpp"
 
 #include "EnvireStorageManager.hpp"
 
