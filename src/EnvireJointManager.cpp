@@ -194,19 +194,16 @@ namespace mars {
       //   obj = NULL;
     }
 
-
     const mars::interfaces::JointData EnvireJointManager::getFullJoint(unsigned long index) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      // MutexLocker locker(&iMutex);
-      // map<unsigned long, SimJoint*>::iterator iter = simJoints.find(index);
-      // if (iter != simJoints.end())
-      //   return iter->second->getSJoint();
-      // else {
-      //   char msg[128];
-      //   sprintf(msg, "could not find joint with index: %lu", index);
-      //   throw std::runtime_error(msg);
-      // }
-      return mars::interfaces::JointData();
+      mars::utils::MutexLocker locker(&iMutex);
+      JointMap::const_iterator iter = simJoints.find(index);
+      if (iter != simJoints.end())
+        return iter->second->getData()->getSJoint();
+      else {
+        char msg[128];
+        sprintf(msg, "could not find joint with index: %lu", index);
+        throw std::runtime_error(msg);
+      }
     }
 
     void EnvireJointManager::removeJoint(unsigned long index) {
