@@ -431,8 +431,8 @@ namespace mars {
     }
 
     unsigned long EnvireJointManager::getID(const std::string& joint_name) const {
-      JointMap::const_iterator iter;
       mars::utils::MutexLocker locker(&iMutex);
+      JointMap::const_iterator iter;
       for(iter = simJoints.begin(); iter != simJoints.end(); iter++) {
         mars::interfaces::JointData joint = iter->second->getData()->getSJoint();
         if (joint.name == joint_name)
@@ -443,13 +443,12 @@ namespace mars {
 
     bool EnvireJointManager::getDataBrokerNames(unsigned long id, std::string *groupName,
                                           std::string *dataName) const {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      // map<unsigned long, SimJoint*>::const_iterator iter;
-      // iter = simJoints.find(id);
-      // if(iter == simJoints.end())
-      //   return false;
-      // iter->second->getDataBrokerNames(groupName, dataName);
-      // return true;
+      mars::utils::MutexLocker locker(&iMutex);
+      JointMap::const_iterator iter = simJoints.find(id);
+      if(iter == simJoints.end())
+        return false;
+      iter->second->getData()->getDataBrokerNames(groupName, dataName);
+      return true;
     }
 
     void EnvireJointManager::setOfflineValue(unsigned long id, mars::interfaces::sReal value) {

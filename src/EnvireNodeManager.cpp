@@ -1865,14 +1865,12 @@ void EnvireNodeManager::updatePositionsFromGraph(){
 
      bool EnvireNodeManager::getDataBrokerNames(mars::interfaces::NodeId id, std::string *groupName,
                                           std::string *dataName) const {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      return false;
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     //LOG_DEBUG("We have currently %i elements\n",(int)simNodes.size());
-  //     if (iter == simNodes.end())
-  //       return false;
-  //     iter->second->getDataBrokerNames(groupName, dataName);
-  //     return true;
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter == simNodes.end())
+            return false;
+        iter->second->getData()->getDataBrokerNames(groupName, dataName);
+        return true;
      }
 
      void EnvireNodeManager::setVisualQOffset(mars::interfaces::NodeId id, const mars::utils::Quaternion &q) {
