@@ -444,14 +444,13 @@ namespace mars {
             return 0;
     }
 
-  //   /**
-  //    *\brief returns the number of nodes added to the simulation
-  //    *
-  //    */
+    /**
+     *\brief returns the number of nodes added to the simulation
+     *
+     */
     int EnvireNodeManager::getNodeCount() const {
-            printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     return simNodes.size();
+        mars::utils::MutexLocker locker(&iMutex);
+        return simNodes.size();
          return 0;
     }
 
@@ -646,20 +645,19 @@ namespace mars {
   //     CPP_UNUSED(group);
      }
 
-  //   /**
-  //    * \brief Fills a list of core_object_exchange objects with node
-  //    * iformations.
-  //    */
+    /**
+     * \brief Fills a list of core_object_exchange objects with node
+     * iformations.
+     */
   void EnvireNodeManager::getListNodes(std::vector<mars::interfaces::core_objects_exchange>* nodeList) const {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     mars::interfaces::core_objects_exchange obj;
-  //     NodeMap::const_iterator iter;
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     nodeList->clear();
-  //     for (iter = simNodes.begin(); iter != simNodes.end(); iter++) {
-  //       iter->second->getCoreExchange(&obj);
-  //       nodeList->push_back(obj);
-  //     }
+    mars::interfaces::core_objects_exchange obj;
+    NodeMap::const_iterator iter;
+    mars::utils::MutexLocker locker(&iMutex);
+    nodeList->clear();
+    for (iter = simNodes.begin(); iter != simNodes.end(); iter++) {
+        iter->second->getData()->getCoreExchange(&obj);
+        nodeList->push_back(obj);
+    }
    }
 
   //   /** \brief
@@ -901,36 +899,33 @@ namespace mars {
   //       iter->second->setRotation(rot, 1);
    }
 
-  //   /**
-  //    *\brief Adds a off-center Force to the node with the given id.
-  //    */
+    /**
+     *\brief Adds a off-center Force to the node with the given id.
+     */
     void EnvireNodeManager::applyForce(mars::interfaces::NodeId id, const mars::utils::Vector &force, const mars::utils::Vector &pos) {
-            printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       iter->second->applyForce(force, pos);
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            iter->second->getData()->applyForce(force, pos);
   }
-  //   /**
-  //    *\brief Adds a Force to the node with the given id.
-  //    */
+    /**
+     *\brief Adds a Force to the node with the given id.
+     */
    void EnvireNodeManager::applyForce(mars::interfaces::NodeId id, const mars::utils::Vector &force) {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       iter->second->applyForce(force);
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            iter->second->getData()->applyForce(force);
     }
 
-  //   /**
-  //    *\brief Adds a Torque to the node with the given id.
-  //    */
+    /**
+     *\brief Adds a Torque to the node with the given id.
+     */
   void EnvireNodeManager::applyTorque(mars::interfaces::NodeId id, const mars::utils::Vector &torque) {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       iter->second->applyTorque(torque);
+    mars::utils::MutexLocker locker(&iMutex);
+    NodeMap::iterator iter = simNodes.find(id);
+    if (iter != simNodes.end())
+        iter->second->getData()->applyTorque(torque);
     }
 
 
@@ -1390,50 +1385,50 @@ namespace mars {
         }
     }
 
-    void EnvireNodeManager::setTfToCenter(envire::core::FrameId frameId, const envire::core::Transform tf){
+    /*void EnvireNodeManager::setTfToCenter(envire::core::FrameId frameId, const envire::core::Transform tf){
         mars::utils::MutexLocker locker(&iMutex);
         EnvireStorageManager::instance()->getGraph()->updateTransform(SIM_CENTER_FRAME_NAME, frameId, tf);
         updatePositionsFromGraph();
     }
 
-void EnvireNodeManager::updatePositionsFromGraph(){
+    void EnvireNodeManager::updatePositionsFromGraph(){
 
-    //update positions in sim nodes
+        //update positions in sim nodes
 
-    std::pair<envire::core::EnvireGraph::vertex_iterator, envire::core::EnvireGraph::vertex_iterator> vertices = EnvireStorageManager::instance()->getGraph()->getVertices();
+        std::pair<envire::core::EnvireGraph::vertex_iterator, envire::core::EnvireGraph::vertex_iterator> vertices = EnvireStorageManager::instance()->getGraph()->getVertices();
 
-    for (auto vertex = vertices.first; vertex != vertices.second; vertex++){
+        for (auto vertex = vertices.first; vertex != vertices.second; vertex++){
 
-        envire::core::GraphTraits::vertex_descriptor center = EnvireStorageManager::instance()->getGraph()->getVertex(SIM_CENTER_FRAME_NAME);
-        base::TransformWithCovariance targetPos = EnvireStorageManager::instance()->getGraph()->getTransform(center,*vertex).transform;
+            envire::core::GraphTraits::vertex_descriptor center = EnvireStorageManager::instance()->getGraph()->getVertex(SIM_CENTER_FRAME_NAME);
+            base::TransformWithCovariance targetPos = EnvireStorageManager::instance()->getGraph()->getTransform(center,*vertex).transform;
 
-        if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(*vertex)){
-            // Update simulation node
+            if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(*vertex)){
+                // Update simulation node
 
-            using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
-            IteratorSimNode begin_sim, end_sim;
-            boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(*vertex);
-            for (;begin_sim!=end_sim; begin_sim++)
-            {
-                const std::shared_ptr<mars::sim::SimNode> sim_node = begin_sim->getData();
+                using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
+                IteratorSimNode begin_sim, end_sim;
+                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(*vertex);
+                for (;begin_sim!=end_sim; begin_sim++)
+                {
+                    const std::shared_ptr<mars::sim::SimNode> sim_node = begin_sim->getData();
 
-                utils::Vector oldpos = sim_node->getPosition();
+                    utils::Vector oldpos = sim_node->getPosition();
 
-                utils::Vector pos = targetPos.translation;
-                sim_node->setPosition(pos,true);
+                    utils::Vector pos = targetPos.translation;
+                    sim_node->setPosition(pos,true);
 
-                utils::Quaternion rot = targetPos.orientation;
-                sim_node->setRotation(rot,true);
-    //                    }
-                std::string name = EnvireStorageManager::instance()->getGraph()->getFrameId(*vertex);
+                    utils::Quaternion rot = targetPos.orientation;
+                    sim_node->setRotation(rot,true);
+        //                    }
+                    std::string name = EnvireStorageManager::instance()->getGraph()->getFrameId(*vertex);
 
-                LOG_WARN("node %s (%.2f %.2f %.2f) to (%.2f %.2f %.2f)\n",name.c_str(),oldpos.x(),oldpos.y(),oldpos.z(),pos.x(),pos.y(),pos.z());
+                    LOG_WARN("node %s (%.2f %.2f %.2f) to (%.2f %.2f %.2f)\n",name.c_str(),oldpos.x(),oldpos.y(),oldpos.z(),pos.x(),pos.y(),pos.z());
 
+                }
             }
         }
-    }
 
-}
+    }*/
 
     void EnvireNodeManager::updatePositions( const envire::core::GraphTraits::vertex_descriptor origin,
                                         const envire::core::GraphTraits::vertex_descriptor target,
@@ -1689,33 +1684,31 @@ void EnvireNodeManager::updatePositionsFromGraph(){
   //     }
      }
 
-     void EnvireNodeManager::getContactPoints(std::vector<mars::interfaces::NodeId> *ids,
-                                        std::vector<mars::utils::Vector> *contact_points) const {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     NodeMap::const_iterator iter;
-  //     std::vector<mars::utils::Vector>::const_iterator lter;
-  //     std::vector<mars::utils::Vector> points;
+    void EnvireNodeManager::getContactPoints(std::vector<mars::interfaces::NodeId> *ids,
+                                            std::vector<mars::utils::Vector> *contact_points) const {
+        NodeMap::const_iterator iter;
+        std::vector<mars::utils::Vector>::const_iterator lter;
+        std::vector<mars::utils::Vector> points;
 
-  //     iMutex.lock();
-  //     for(iter=simNodes.begin(); iter!=simNodes.end(); ++iter) {
-  //       iter->second->getContactPoints(&points);
-  //       for(lter=points.begin(); lter!=points.end(); ++lter) {
-  //         ids->push_back(iter->first);
-  //         contact_points->push_back((*lter));
-  //       }
-  //     }
-  //     iMutex.unlock();
-     }
+        iMutex.lock();
+        for(iter=simNodes.begin(); iter!=simNodes.end(); ++iter) {
+            iter->second->getData()->getContactPoints(&points);
+            for(lter=points.begin(); lter!=points.end(); ++lter) {
+                ids->push_back(iter->first);
+                contact_points->push_back((*lter));
+            }
+        }
+        iMutex.unlock();
+    }
 
-     void EnvireNodeManager::getContactIDs(const mars::interfaces::NodeId &id,
-                                     std::list<mars::interfaces::NodeId> *ids) const {
-    printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end()) {
-  //       iter->second->getContactIDs(ids);
-  //     }
-     }
+    void EnvireNodeManager::getContactIDs(const mars::interfaces::NodeId &id,
+                                    std::list<mars::interfaces::NodeId> *ids) const {
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end()) {
+            iter->second->getData()->getContactIDs(ids);
+        }
+    }
 
      void EnvireNodeManager::updateRay(mars::interfaces::NodeId id) {
   //    printf("not implemented : %s\n", __PRETTY_FUNCTION__);
@@ -1727,45 +1720,43 @@ void EnvireNodeManager::updatePositionsFromGraph(){
 
 
 
-     mars::interfaces::NodeId EnvireNodeManager::getDrawID(mars::interfaces::NodeId id) const {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      return 0;
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       return iter->second->getGraphicsID();
-  //     else
-  //       return INVALID_ID;
-     }
+    mars::interfaces::NodeId EnvireNodeManager::getDrawID(mars::interfaces::NodeId id) const {
+        // FIX: move this into envire graph viz
+        // Take care of the nodeid 0, it is part of sim
+        // TODO_A: introduce draw interface manager to separate node from visualisation
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            return iter->second->getData()->getGraphicsID();
+        else
+            return INVALID_ID;
+    }
 
 
-     const mars::utils::Vector EnvireNodeManager::getContactForce(mars::interfaces::NodeId id) const {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      return utils::Vector();
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       return iter->second->getContactForce();
-  //     else
-  //       return mars::utils::Vector(0.0, 0.0, 0.0);
-     }
+    const mars::utils::Vector EnvireNodeManager::getContactForce(mars::interfaces::NodeId id) const {
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            return iter->second->getData()->getContactForce();
+        else
+            return mars::utils::Vector(0.0, 0.0, 0.0);
+    }
 
 
-     double EnvireNodeManager::getCollisionDepth(mars::interfaces::NodeId id) const {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      return 0;
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       return iter->second->getCollisionDepth();
-  //     else
-  //       return 0.0;
-     }
+    double EnvireNodeManager::getCollisionDepth(mars::interfaces::NodeId id) const {
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            return iter->second->getData()->getCollisionDepth();
+        else
+            return 0.0;
+    }
 
 
     void EnvireNodeManager::setVisualRep(mars::interfaces::NodeId id, int val) {
         // FIX: move this into envire graph viz
         // Take care of the nodeid 0, it is part of sim
+        // TODO_A: introduce draw interface manager to separate node from visualisation
 
         if(!(control->graphics))
             return;
@@ -1817,50 +1808,53 @@ void EnvireNodeManager::updatePositionsFromGraph(){
 
 
 
-     std::vector<mars::interfaces::NodeId> EnvireNodeManager::getConnectedNodes(mars::interfaces::NodeId id) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      return std::vector<mars::interfaces::NodeId>();
-  //     std::vector<mars::interfaces::NodeId> connected;
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::iterator iter = simNodes.find(id);
-  //     if (iter == simNodes.end())
-  //       return connected;
+    std::vector<mars::interfaces::NodeId> EnvireNodeManager::getConnectedNodes(mars::interfaces::NodeId id) {
+        //TODO_A: check how we can simplify the functionality by using graph
+        std::vector<mars::interfaces::NodeId> connected;
+        mars::utils::MutexLocker locker(&iMutex);
 
-  //     mars::sim::SimNode* current = iter->second;
-  //     std::vector<mars::sim::SimJoint*> simJoints = control->joints->getSimJoints();
+        // find the node with given NodeID
+        NodeMap::iterator iter = simNodes.find(id);
+        if (iter == simNodes.end())
+            return connected;
 
-  //     if (current->getGroupID() != 0)
-  //       for (iter = simNodes.begin(); iter != simNodes.end(); iter++)
-  //         if (iter->second->getGroupID() == current->getGroupID())
-  //           connected.push_back(iter->first);
+        std::shared_ptr<mars::sim::SimNode> currentNode = iter->second->getData();
+        std::vector<mars::sim::SimJoint*> simJoints = control->joints->getSimJoints();
 
-  //     for (size_t i = 0; i < simJoints.size(); i++) {
-  //       if (simJoints[i]->getAttachedNode() &&
-  //           simJoints[i]->getAttachedNode()->getID() == id &&
-  //           simJoints[i]->getAttachedNode(2)) {
-  //         connected.push_back(simJoints[i]->getAttachedNode(2)->getID());
-  //         /*    current = simNodes.find(connected.back())->second;
-  //               if (current->getGroupID() != 0)
-  //               for (iter = simNodes.begin(); iter != simNodes.end(); iter++)
-  //               if (iter->second->getGroupID() == current->getGroupID())
-  //               connected.push_back(iter->first);*/
-  //       }
+        // find all nodes that belong to the same group as the current node
+        if (currentNode->getGroupID() != 0){
+            for (iter = simNodes.begin(); iter != simNodes.end(); iter++)
+                if (iter->second->getData()->getGroupID() == currentNode->getGroupID())
+                    connected.push_back(iter->first);
+        }
 
-  //       if (simJoints[i]->getAttachedNode(2) &&
-  //           simJoints[i]->getAttachedNode(2)->getID() == id &&
-  //           simJoints[i]->getAttachedNode()) {
-  //         connected.push_back(simJoints[i]->getAttachedNode()->getID());
-  //         /*      current = simNodes.find(connected.back())->second;
-  //                 if (current->getGroupID() != 0)
-  //                 for (iter = simNodes.begin(); iter != simNodes.end(); iter++)
-  //                 if (iter->second->getGroupID() == current->getGroupID())
-  //                 connected.push_back(iter->first);*/
-  //       }
-  //     }
+        for (size_t i = 0; i < simJoints.size(); i++) {
+            if (simJoints[i]->getAttachedNode() &&
+                simJoints[i]->getAttachedNode()->getID() == id &&
+                simJoints[i]->getAttachedNode(2)) {
+                connected.push_back(simJoints[i]->getAttachedNode(2)->getID());
+                /*    currentNode = simNodes.find(connected.back())->second;
+                    if (currentNode->getGroupID() != 0)
+                    for (iter = simNodes.begin(); iter != simNodes.end(); iter++)
+                    if (iter->second->getGroupID() == currentNode->getGroupID())
+                    connected.push_back(iter->first);*/
+            }
 
-  //     return connected;
+            if (simJoints[i]->getAttachedNode(2) &&
+                simJoints[i]->getAttachedNode(2)->getID() == id &&
+                simJoints[i]->getAttachedNode()) {
+                connected.push_back(simJoints[i]->getAttachedNode()->getID());
+                /*      currentNode = simNodes.find(connected.back())->second;
+                        if (currentNode->getGroupID() != 0)
+                        for (iter = simNodes.begin(); iter != simNodes.end(); iter++)
+                        if (iter->second->getGroupID() == currentNode->getGroupID())
+                        connected.push_back(iter->first);*/
+            }
+        }
 
-     }
+        return connected;
+
+    }
 
 
      bool EnvireNodeManager::getDataBrokerNames(mars::interfaces::NodeId id, std::string *groupName,
