@@ -1141,12 +1141,11 @@ namespace mars {
   //     node->setPositionOffset(offset);
      }
 
-     void EnvireNodeManager::applyRotation(mars::sim::SimNode *node, const Params *params)
-     {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     const RotationParams *p = dynamic_cast<const RotationParams*>(params);
-  //     node->rotateAtPoint(p->rotation_point, p->rotation, true);
-     }
+    void EnvireNodeManager::applyRotation(mars::sim::SimNode *node, const Params *params)
+    {
+        const RotationParams *p = dynamic_cast<const RotationParams*>(params);
+        node->rotateAtPoint(p->rotation_point, p->rotation, true);
+    }
 
     void EnvireNodeManager::moveNodeRecursive(mars::interfaces::NodeId id, const mars::utils::Vector &offset,
                                         std::vector<mars::sim::SimJoint*> *joints,
