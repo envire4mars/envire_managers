@@ -71,8 +71,8 @@ namespace mars {
 
       std::shared_ptr<mars::interfaces::JointInterface> newJointInterface;
       std::vector<mars::sim::SimNode*>::iterator iter;
-      
-      
+
+
       mars::interfaces::NodeInterface *i_node1 = 0;
       mars::interfaces::NodeInterface *i_node2 = 0;
       mars::utils::Vector an;
@@ -96,7 +96,7 @@ namespace mars {
       //if node index is 0, the node connects to the environment.
       std::shared_ptr<mars::sim::SimNode> node1 = control->nodes->getSimNode(jointS->nodeIndex1);
       LOG_DEBUG(("EnvireJointManager::addJoint: node1: " + node1->getName()).c_str());
-      if (node1) 
+      if (node1)
         i_node1 = node1->getInterface();
 
       std::shared_ptr<mars::sim::SimNode> node2 = control->nodes->getSimNode(jointS->nodeIndex2);
@@ -133,8 +133,8 @@ namespace mars {
         //    newJoint->setSJoint(*jointS);
         newJoint->setPhysicalJoint(newJointInterface);
 
-        SimJointItemPtr newJointItemPtr( new SimJointItem(newJoint));        
-        EnvireStorageManager::instance()->getGraph()->addItemToFrame(jointS->frameID, newJointItemPtr);   
+        SimJointItemPtr newJointItemPtr( new SimJointItem(newJoint));
+        EnvireStorageManager::instance()->getGraph()->addItemToFrame(jointS->frameID, newJointItemPtr);
 
         simJoints[jointS->index] = newJointItemPtr;
         iMutex.unlock();
@@ -438,6 +438,26 @@ namespace mars {
       return 0;
     }
 
+    /**
+     * Retrieve the id of a joint by the ids of the connected nodes
+     * \param id1, id2 Ids of the connected nodes
+     * \return Id of the joint if it exists, otherwise 0
+     */
+    unsigned long EnvireJointManager::getIDByNodeIDs(unsigned long id1, unsigned long id2) {
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+      // std::map<unsigned long, SimJoint*>::iterator iter;
+      // MutexLocker locker(&iMutex);
+
+      // for (iter = simJoints.begin(); iter != simJoints.end(); iter++)
+      //   if((iter->second->getNodeId() == id1 &&
+      //       iter->second->getNodeId(2) == id2) ||
+      //      (iter->second->getNodeId() == id2 &&
+      //       iter->second->getNodeId(2) == id1)) {
+      //     return iter->first;
+      //   }
+      return 0;
+    }
+
     bool EnvireJointManager::getDataBrokerNames(unsigned long id, std::string *groupName,
                                           std::string *dataName) const {
       mars::utils::MutexLocker locker(&iMutex);
@@ -528,7 +548,7 @@ namespace mars {
       //   return;
       // return iter->second->setUpperLimit(highStop2, 2);
     }
-    
+
     // todo: do we need to edit angle offsets
     void EnvireJointManager::edit(mars::interfaces::JointId id, const std::string &key,
                     const std::string &value) {

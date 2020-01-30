@@ -114,7 +114,7 @@ namespace mars {
         // so we can specify where the node should be placed
         if (nodeS->frameID.empty())
             nodeS->frameID = nodeS->name;
-        
+
         iMutex.lock();
         nodeS->index = next_node_id;
         next_node_id++;
@@ -157,7 +157,7 @@ namespace mars {
                     }
                 }
             }
-            
+
             //simNodesReload.push_back(reloadNode);
 
             if (nodeS->c_params.friction_direction1) {
@@ -210,7 +210,7 @@ namespace mars {
                     LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
                     return INVALID_ID;
                 }
-                
+
                 bool release_graphics = false;
                 if(!control->loadCenter->loadHeightmap) {
                     mars::interfaces::GraphicsManagerInterface *g = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
@@ -226,7 +226,7 @@ namespace mars {
                         return INVALID_ID;
                     }
                 }
-            
+
                 control->loadCenter->loadHeightmap->readPixelData(nodeS->terrain);
                 if (release_graphics){
                     libManager->releaseLibrary("mars_graphics");
@@ -252,8 +252,8 @@ namespace mars {
         std::shared_ptr<mars::sim::SimNode> newNode(new mars::sim::SimNode(control, *nodeS));
 
         // ------ PHYSICAL NODE
-        if(nodeS->noPhysical == false) {  
-            LOG_DEBUG(("EnvireNodeManager::addNode: nodeS->noPhysical: " + nodeS->name).c_str());   
+        if(nodeS->noPhysical == false) {
+            LOG_DEBUG(("EnvireNodeManager::addNode: nodeS->noPhysical: " + nodeS->name).c_str());
             // create an interface object to the physics
             mars::interfaces::NodeInterface *newNodeInterface = mars::sim::PhysicsMapper::newNodePhysics(control->sim->getPhysics());
 
@@ -278,20 +278,20 @@ namespace mars {
                 LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + nodeS->frameID).c_str());
                 envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
                 nodeTransf.time = base::Time::now();
-                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, nodeS->frameID, nodeTransf);                
+                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, nodeS->frameID, nodeTransf);
             }
-            
-            iMutex.lock(); 
+
+            iMutex.lock();
             // add node into the graph
-            SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));        
-            EnvireStorageManager::instance()->getGraph()->addItemToFrame(nodeS->frameID, newNodeItemPtr);   
-                     
-            // add node into the node map        
+            SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
+            EnvireStorageManager::instance()->getGraph()->addItemToFrame(nodeS->frameID, newNodeItemPtr);
+
+            // add node into the node map
             simNodes[nodeS->index] = newNodeItemPtr;
             //if (nodeS->movable)
             //    simNodesDyn[nodeS->index] = newNodeItemPtr;
             iMutex.unlock();
-        
+
             control->sim->sceneHasChanged(false);
             mars::interfaces::NodeId id;
             // TODO: graphic manager
@@ -310,12 +310,12 @@ namespace mars {
                 }
 
                 newNode->setGraphicsID(nodeS->graphicsID1);*/
-                
 
-                LOG_DEBUG(("EnvireNodeManager::addNode: nodeS->noPhysical: " + nodeS->name).c_str());   
+
+                LOG_DEBUG(("EnvireNodeManager::addNode: nodeS->noPhysical: " + nodeS->name).c_str());
 
                 /*if(nodeS->physicMode != mars::interfaces::NODE_TYPE_TERRAIN) {
-                    LOG_DEBUG("EnvireNodeManager::addNode: nodeS->physicMode != mars::interfaces::NODE_TYPE_TERRAIN: " + nodeS->name);   
+                    LOG_DEBUG("EnvireNodeManager::addNode: nodeS->physicMode != mars::interfaces::NODE_TYPE_TERRAIN: " + nodeS->name);
 
                     // NEW_NODE_STRUCT(physicalRep);
                     // Draw physical representation -> collision objects
@@ -329,7 +329,7 @@ namespace mars {
                     physicalRep.visual_offset_rot = mars::utils::Quaternion::Identity();
                     physicalRep.visual_size = mars::utils::Vector(0.0, 0.0, 0.0);
                     physicalRep.map["sharedDrawID"] = 0lu;
-                    physicalRep.map["visualType"] = mars::interfaces::NodeData::toString(nodeS->physicMode);                    
+                    physicalRep.map["visualType"] = mars::interfaces::NodeData::toString(nodeS->physicMode);
 
                     if(nodeS->physicMode != mars::interfaces::NODE_TYPE_MESH) {
                         physicalRep.filename = "PRIMITIVE";
@@ -442,6 +442,19 @@ namespace mars {
   //     control->sim->sceneHasChanged(false);
   //     return addNode(snode);
             return 0;
+    }
+
+    /**
+     *\brief returns true if the node with the given id exists
+     *
+     */
+    bool EnvireNodeManager::exists(mars::interfaces::NodeId id) const {
+        printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+    //   NodeMap::const_iterator iter = simNodes.find(id);
+    //   if(iter != simNodes.end()) {
+    //     return true;
+    //   }
+      return false;
     }
 
     /**
@@ -1169,7 +1182,7 @@ namespace mars {
 
         std::shared_ptr<mars::sim::SimNode> editedNode = iter->second->getData();
         editedNode->rotateAtPoint(pivot, q, true);
-    
+
         if (includeConnected) {
             std::vector<mars::sim::SimJoint*> joints = control->joints->getSimJoints();
             std::vector<mars::sim::SimJoint*>::iterator jter;
@@ -1362,12 +1375,12 @@ namespace mars {
             const std::string msg = "Loop in tree detected: " + sourceId + " --> " + targetId +
                                ". The physics plugin cannot handle loops in the graph";
             throw std::runtime_error(msg);
-        }        
+        }
 
         // update the graph from top to bottom
         // starts with the parent and go to children
         const envire::core::GraphTraits::vertex_descriptor originDesc = EnvireStorageManager::instance()->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
-        updateChildPositions(originDesc, base::TransformWithCovariance::Identity(), calc_ms, physics_thread); 
+        updateChildPositions(originDesc, base::TransformWithCovariance::Identity(), calc_ms, physics_thread);
     }
 
     void EnvireNodeManager::updateChildPositions(const envire::core::GraphTraits::vertex_descriptor vertex,
@@ -1456,19 +1469,19 @@ namespace mars {
                 {
                     // update the physic of sim node
                     sim_node->update(calc_ms, physics_thread);
-                    
+
                     if ( node_data.simNodeType != mars::interfaces::SimNodeType::INERTIA
                         && node_data.simNodeType != mars::interfaces::SimNodeType::COLLISION
                         && node_data.simNodeType != mars::interfaces::SimNodeType::VISUAL) {
-                        
+
                         // update graph: update the pose of sim node in graph
                         base::TransformWithCovariance absolutTransform;
                         absolutTransform.translation = sim_node->getPosition();
-                        absolutTransform.orientation = sim_node->getRotation();  
+                        absolutTransform.orientation = sim_node->getRotation();
 
-                        // FIX: do we need update time in transformation?  
+                        // FIX: do we need update time in transformation?
 
-                        tf.setTransform(originToRoot * absolutTransform); 
+                        tf.setTransform(originToRoot * absolutTransform);
                         tf.time = base::Time::now();
                         EnvireStorageManager::instance()->getGraph()->updateTransform(origin, target, tf);
                     }
@@ -1478,7 +1491,7 @@ namespace mars {
 
         const envire::core::Transform invTf = EnvireStorageManager::instance()->getGraph()->getTransform(target, origin);
         updateChildPositions(target, invTf.transform * originToRoot, calc_ms, physics_thread);
-    }    
+    }
 
      void EnvireNodeManager::preGraphicsUpdate() {
       printf("not implemented : %s\n", __PRETTY_FUNCTION__);
@@ -1797,6 +1810,26 @@ namespace mars {
         return INVALID_ID;
      }
 
+    /**
+     * Retrieve the ids of the node which contain str_in_name in there name.
+     * \param str_in_name String in the name of the nodes to get the ids for
+     * \return Vector filled with the ids of the node if it exists, otherwise emtpy vector
+     */
+    std::vector<mars::interfaces::NodeId> EnvireNodeManager::getNodeIDs(const std::string& str_in_name) const {
+         printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+    //   iMutex.lock();
+    //   NodeMap::const_iterator iter;
+    //   std::vector<interfaces::NodeId> out;
+    //   for(iter = simNodes.begin(); iter != simNodes.end(); iter++) {
+    //     if (iter->second->getName().find(str_in_name) != std::string::npos)  {
+    //       out.push_back(iter->first);
+    //     }
+    //   }
+    //   iMutex.unlock();
+    //   return out;
+        return std::vector<mars::interfaces::NodeId>();
+    }
+
      void EnvireNodeManager::pushToUpdate(mars::sim::SimNode* node) {
       printf("not implemented : %s\n", __PRETTY_FUNCTION__);
   //     mars::utils::MutexLocker locker(&iMutex);
@@ -2026,7 +2059,7 @@ namespace mars {
   //       iter->second->setContactParams(c);
   //     }
      }
-    
+
   }
   } // end of namespace sim
 } // end of namespace mars

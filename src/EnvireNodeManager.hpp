@@ -41,10 +41,10 @@
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
 
-namespace mars { 
+namespace mars {
   namespace sim {
-    class SimJoint; 
-    class SimNode; 
+    class SimJoint;
+    class SimNode;
   }
 }
 
@@ -54,7 +54,7 @@ namespace mars {
 
           using SimNodeItem =  envire::core::Item<std::shared_ptr<mars::sim::SimNode>>;
           using SimJointItem =  envire::core::Item<std::shared_ptr<mars::sim::SimJoint>>;
-          using SimNodeItemPtr = SimNodeItem::Ptr;          
+          using SimNodeItemPtr = SimNodeItem::Ptr;
 
           typedef std::map<mars::interfaces::NodeId, SimNodeItemPtr> NodeMap;
 
@@ -85,6 +85,7 @@ namespace mars {
             virtual mars::interfaces::NodeId addTerrain(mars::interfaces::terrainStruct *terrainS);
             virtual std::vector<mars::interfaces::NodeId> addNode(std::vector<mars::interfaces::NodeData> v_NodeData);
             virtual mars::interfaces::NodeId addPrimitive(mars::interfaces::NodeData *snode);
+            virtual bool exists(mars::interfaces::NodeId id) const;
             virtual int getNodeCount() const;
             virtual mars::interfaces::NodeId getNextNodeID() const;
             virtual void editNode(mars::interfaces::NodeData *nodeS, int changes);
@@ -147,12 +148,9 @@ namespace mars {
                                   const mars::utils::Vector &visOffsetPos,
                                   const mars::utils::Quaternion &visOffsetRot,
                                   bool doLock = true);
-            /**
-             * Retrieve the id of a node by name
-             * \param node_name Name of the node to get the id for
-             * \return Id of the node if it exists, otherwise 0
-             */
+
             virtual mars::interfaces::NodeId getID(const std::string& node_name) const;
+            virtual std::vector<mars::interfaces::NodeId> getNodeIDs(const std::string& str_in_name) const;
             virtual double getCollisionDepth(mars::interfaces::NodeId id) const;
             virtual bool getDataBrokerNames(mars::interfaces::NodeId id, std::string *groupName,
                                             std::string *dataName) const;
@@ -246,7 +244,7 @@ namespace mars {
             void updatePositions(const envire::core::GraphTraits::vertex_descriptor origin,
                                  const envire::core::GraphTraits::vertex_descriptor target,
                                  const base::TransformWithCovariance& originToRoot,
-                                 mars::interfaces::sReal calc_ms, bool physics_thread);            
+                                 mars::interfaces::sReal calc_ms, bool physics_thread);
 
             // for passing parameters to the recursiveHelper.
             struct Params
