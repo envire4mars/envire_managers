@@ -36,7 +36,7 @@
 #include <mars/interfaces/sim/LoadCenter.h>
 
 #include <configmaps/ConfigData.h>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 #include "EnvireStorageManager.hpp"
 #include "EnvireMotorManager.hpp"
