@@ -182,24 +182,24 @@ namespace mars {
         // convert obj to ode mesh
         if((nodeS->physicMode == mars::interfaces::NODE_TYPE_MESH) && (nodeS->terrain == 0) ) {
             LOG_ERROR(("EnvireNodeManager::addNode: NODE_TYPE_MESH not implemented: " + nodeS->name).c_str());
-            /*if(!control->loadCenter) {
-            LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
-            return INVALID_ID;
+            if(!control->loadCenter) {
+                LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
+                return INVALID_ID;
             }
             if(!control->loadCenter->loadMesh) {
-            mars::interfaces::GraphicsManagerInterface *g = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
-            if(!g) {
-            libManager->loadLibrary("mars_graphics", NULL, false, true);
-            g = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
+                mars::interfaces::GraphicsManagerInterface *g = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
+                if(!g) {
+                    libManager->loadLibrary("mars_graphics", NULL, false, true);
+                    g = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
+                }
+                if(g) {
+                    control->loadCenter->loadMesh = g->getLoadMeshInterface();
+                }
+                else {
+                    LOG_ERROR("EnvireNodeManager:: loadMesh is missing, can not create Node");
+                }
             }
-            if(g) {
-            control->loadCenter->loadMesh = g->getLoadMeshInterface();
-            }
-            else {
-            LOG_ERROR("EnvireNodeManager:: loadMesh is missing, can not create Node");
-            }
-            }
-            control->loadCenter->loadMesh->getPhysicsFromMesh(nodeS);*/
+            control->loadCenter->loadMesh->getPhysicsFromMesh(nodeS);
         }
 
         // ------ NODE_TYPE_TERRAIN
@@ -294,68 +294,6 @@ namespace mars {
 
             control->sim->sceneHasChanged(false);
             mars::interfaces::NodeId id;
-            // TODO: graphic manager
-            if(control->graphics) {
-                // Draw visual Representation
-                /*if(loadGraphics) {
-                    id = control->graphics->addDrawObject(*nodeS, visual_rep & 1);
-                    if(id) {
-                        newNode->setGraphicsID(id);
-                        //if(!reload) {
-                        //    simNodesReload.back().graphicsID1 = id;
-                        //}
-                    }
-                } else {
-                    newNode->setGraphicsID(nodeS->graphicsID1);
-                }
-
-                newNode->setGraphicsID(nodeS->graphicsID1);*/
-
-
-                LOG_DEBUG(("EnvireNodeManager::addNode: nodeS->noPhysical: " + nodeS->name).c_str());
-
-                /*if(nodeS->physicMode != mars::interfaces::NODE_TYPE_TERRAIN) {
-                    LOG_DEBUG("EnvireNodeManager::addNode: nodeS->physicMode != mars::interfaces::NODE_TYPE_TERRAIN: " + nodeS->name);
-
-                    // NEW_NODE_STRUCT(physicalRep);
-                    // Draw physical representation -> collision objects
-                    mars::interfaces::NodeData physicalRep;
-                    physicalRep = *nodeS;
-                    physicalRep.material = nodeS->material;
-                    physicalRep.material.exists = 1;
-                    physicalRep.material.transparency = 0.3;
-                    physicalRep.material.name += "_trans";
-                    physicalRep.visual_offset_pos = mars::utils::Vector(0.0, 0.0, 0.0);
-                    physicalRep.visual_offset_rot = mars::utils::Quaternion::Identity();
-                    physicalRep.visual_size = mars::utils::Vector(0.0, 0.0, 0.0);
-                    physicalRep.map["sharedDrawID"] = 0lu;
-                    physicalRep.map["visualType"] = mars::interfaces::NodeData::toString(nodeS->physicMode);
-
-                    if(nodeS->physicMode != mars::interfaces::NODE_TYPE_MESH) {
-                        physicalRep.filename = "PRIMITIVE";
-                        //physicalRep.filename = nodeS->filename;
-                        if(nodeS->physicMode > 0 && nodeS->physicMode < mars::interfaces::NUMBER_OF_NODE_TYPES){
-                            physicalRep.origName = mars::interfaces::NodeData::toString(nodeS->physicMode);
-                        }
-                    }
-                    if(loadGraphics) {
-                        id = control->graphics->addDrawObject(physicalRep,
-                                                        visual_rep & 2);
-                        if(id) {
-                            newNode->setGraphicsID2(id);
-                            //if(!reload) {
-                            //    simNodesReload.back().graphicsID2 = id;
-                            //}
-                        }
-                    } else {
-                        newNode->setGraphicsID2(nodeS->graphicsID2);
-                    }
-                }
-
-                newNode->setGraphicsID2(nodeS->graphicsID2);
-
-                newNode->setVisualRep(visual_rep);*/
-            }
         } else {  // ------ NONE PHYSICAL NODE
             LOG_ERROR(("EnvireNodeManager::addNode: nonPhysical not implemented: " + nodeS->name).c_str());
 
@@ -381,21 +319,6 @@ namespace mars {
             iMutex.unlock();
 
             control->sim->sceneHasChanged(false);
-            /*
-            if(control->graphics) {
-              if(loadGraphics) {
-                mars::interfaces::NodeId id = control->graphics->addDrawObject(*nodeS);
-                if(id) {
-                  newNode->setGraphicsID(id);
-                  if(!reload) {
-                    simNodesReload.back().graphicsID1 = id;
-                  }
-                }
-              }
-              else {
-                newNode->setGraphicsID(nodeS->graphicsID1);
-              }
-            }*/
         }
         return nodeS->index;
     }
