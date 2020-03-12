@@ -122,7 +122,7 @@ namespace mars {
 
         // ------ NOT RELOADED OBJECTS -> TERRAIN
         if (reload == false) {
-            LOG_ERROR(("EnvireNodeManager::addNode: Reload is not implemented: " + nodeS->name).c_str());
+            LOG_INFO(("EnvireNodeManager::addNode: non reloaded object Terrain: " + nodeS->name).c_str());
             iMutex.lock();
 
             //TODO: check if we can take out the mars_graphics
@@ -358,13 +358,30 @@ namespace mars {
             }
         } else {  // ------ NONE PHYSICAL NODE
             LOG_ERROR(("EnvireNodeManager::addNode: nonPhysical not implemented: " + nodeS->name).c_str());
-            /*
+
             iMutex.lock();
-            simNodes[nodeS->index] = newNode;
-            if (nodeS->movable)
-              simNodesDyn[nodeS->index] = newNode;
+            // if frame is not in the graph, create one
+            if (EnvireStorageManager::instance()->getGraph()->containsFrame(nodeS->frameID) == false)
+            {
+                LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + nodeS->frameID).c_str());
+                envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
+                nodeTransf.time = base::Time::now();
+                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, nodeS->frameID, nodeTransf);
+            }
+
+            // add node into the graph
+            SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
+            EnvireStorageManager::instance()->getGraph()->addItemToFrame(nodeS->frameID, newNodeItemPtr);
+            LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
+
+            simNodes[nodeS->index] = newNodeItemPtr;
+            //if (nodeS->movable)
+              //simNodesDyn[nodeS->index] = newNodeItemPtr;
+
             iMutex.unlock();
+
             control->sim->sceneHasChanged(false);
+            /*
             if(control->graphics) {
               if(loadGraphics) {
                 mars::interfaces::NodeId id = control->graphics->addDrawObject(*nodeS);
