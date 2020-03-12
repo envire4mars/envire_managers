@@ -181,7 +181,7 @@ namespace mars {
         // ------ NODE_TYPE_MESH
         // convert obj to ode mesh
         if((nodeS->physicMode == mars::interfaces::NODE_TYPE_MESH) && (nodeS->terrain == 0) ) {
-            LOG_ERROR(("EnvireNodeManager::addNode: NODE_TYPE_MESH not implemented: " + nodeS->name).c_str());
+            LOG_INFO(("EnvireNodeManager::addNode: NODE_TYPE_MESH: " + nodeS->name).c_str());
             if(!control->loadCenter) {
                 LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
                 return INVALID_ID;
@@ -253,7 +253,7 @@ namespace mars {
 
         // ------ PHYSICAL NODE
         if(nodeS->noPhysical == false) {
-            LOG_DEBUG(("EnvireNodeManager::addNode: nodeS->noPhysical: " + nodeS->name).c_str());
+            LOG_INFO(("EnvireNodeManager::addNode: physical: " + nodeS->name).c_str());
             // create an interface object to the physics
             mars::interfaces::NodeInterface *newNodeInterface = mars::sim::PhysicsMapper::newNodePhysics(control->sim->getPhysics());
 
@@ -295,7 +295,7 @@ namespace mars {
             control->sim->sceneHasChanged(false);
             mars::interfaces::NodeId id;
         } else {  // ------ NONE PHYSICAL NODE
-            LOG_ERROR(("EnvireNodeManager::addNode: nonPhysical not implemented: " + nodeS->name).c_str());
+            LOG_INFO(("EnvireNodeManager::addNode: nonPhysical: " + nodeS->name).c_str());
 
             iMutex.lock();
             // if frame is not in the graph, create one
