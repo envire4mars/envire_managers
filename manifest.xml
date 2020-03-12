@@ -2,8 +2,10 @@
     <description brief="envire_managers">
       Create
    </description>
-    <maintainer>Raul/raul.dominguez@dfki.de</maintainer>
-    <author>Raul/raul.dominguez@dfki.de</author>
+    <maintainer>Raul/Raul.Dominguez@dfki.de</maintainer>
+    <maintainer>Anna/Anna.Born@dfki.de</maintainer>
+    <author>Raul/Raul.Dominguez@dfki.de</author>
+    <author>Anna/Anna.Born@dfki.de</author>
     <depend package="simulation/mars/scripts/cmake" />
     <depend package="simulation/lib_manager" />
     <depend package="simulation/mars/common/data_broker" />
