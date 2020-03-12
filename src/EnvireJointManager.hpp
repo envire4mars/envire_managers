@@ -40,9 +40,9 @@
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
 
-namespace mars { 
+namespace mars {
   namespace sim {
-    class SimJoint; 
+    class SimJoint;
   }
 }
 
@@ -51,7 +51,7 @@ namespace mars {
     namespace envire_managers {
 
     using SimJointItem =  envire::core::Item<std::shared_ptr<mars::sim::SimJoint>>;
-    using SimJointItemPtr = SimJointItem::Ptr;              
+    using SimJointItemPtr = SimJointItem::Ptr;
 
     typedef std::map<mars::interfaces::NodeId, SimJointItemPtr> JointMap;
 
@@ -90,6 +90,7 @@ namespace mars {
                                  bool first_axis = 1);
 
       virtual unsigned long getID(const std::string &joint_name) const;
+      virtual unsigned long getIDByNodeIDs(unsigned long id1, unsigned long id2);
       virtual bool getDataBrokerNames(unsigned long id, std::string *groupName,
                                       std::string *dataName) const;
       virtual void setOfflineValue(unsigned long id, mars::interfaces::sReal value);

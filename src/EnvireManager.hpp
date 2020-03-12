@@ -81,7 +81,7 @@ namespace mars {
         void init();
         void reset();
         void update(mars::interfaces::sReal time_ms);
-        
+
       private:
         const bool debug = true;
         unsigned int motorIndex;
