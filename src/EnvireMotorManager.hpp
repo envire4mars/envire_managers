@@ -301,6 +301,9 @@ namespace mars {
 
       virtual void connectMimics();
 
+      virtual void setOfflinePosition(interfaces::MotorId id,
+                                      interfaces::sReal pos);
+
       virtual void updatePositionsFromGraph();
 
       virtual void edit(mars::interfaces::MotorId id, const std::string &key, const std::string &value);

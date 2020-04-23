@@ -596,6 +596,14 @@ namespace mars {
       }
     }
 
+    void EnvireMotorManager::setOfflinePosition(interfaces::MotorId id,
+                                                interfaces::sReal pos) {
+      MutexLocker locker(&iMutex);
+      map<unsigned long, std::shared_ptr<mars::sim::SimMotor>>::const_iterator iter = simMotors.find(id);
+      if (iter != simMotors.end())
+        iter->second->setOfflinePosition(pos);
+      }
+
     void EnvireMotorManager::updatePositionsFromGraph(){
 
         //update positions in sim nodes
