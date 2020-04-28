@@ -193,7 +193,7 @@ namespace mars {
             if (joint_data.name == jointName)
             {
               jointFound = true;
-              simMotor->attachJoint(simJoint.get());
+              simMotor->attachJoint(simJoint);
               SimMotorItemPtr simMotorItem(new envire::core::Item<shared_ptr<mars::sim::SimMotor>>(simMotor));
               EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameName, simMotorItem);
             }

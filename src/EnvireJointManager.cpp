@@ -73,8 +73,8 @@ namespace mars {
       std::vector<mars::sim::SimNode*>::iterator iter;
 
 
-      mars::interfaces::NodeInterface *i_node1 = 0;
-      mars::interfaces::NodeInterface *i_node2 = 0;
+      std::shared_ptr<mars::interfaces::NodeInterface> i_node1 = 0;
+      std::shared_ptr<mars::interfaces::NodeInterface> i_node2 = 0;
       mars::utils::Vector an;
 
       if (!reload) {
@@ -91,7 +91,7 @@ namespace mars {
       }
 
       // create an interface object to the physics
-      newJointInterface.reset(mars::sim::PhysicsMapper::newJointPhysics(control->sim->getPhysics()));
+      newJointInterface.reset(mars::sim::PhysicsMapper::newJointPhysics(control->sim->getPhysics()).get());
       // reset the anchor
       //if node index is 0, the node connects to the environment.
       std::shared_ptr<mars::sim::SimNode> node1 = control->nodes->getSimNode(jointS->nodeIndex1);
@@ -251,12 +251,12 @@ namespace mars {
     }
 
 
-    std::vector<mars::sim::SimJoint*> EnvireJointManager::getSimJoints(void) {
-      std::vector<mars::sim::SimJoint*> v_simJoints;
+    std::vector<std::shared_ptr<mars::sim::SimJoint>> EnvireJointManager::getSimJoints(void) {
+      std::vector<std::shared_ptr<mars::sim::SimJoint>> v_simJoints;
       JointMap::iterator iter;
       mars::utils::MutexLocker locker(&iMutex);
       for (iter = simJoints.begin(); iter != simJoints.end(); iter++)
-        v_simJoints.push_back(iter->second->getData().get());
+        v_simJoints.push_back(iter->second->getData());
       return v_simJoints;
     }
 
