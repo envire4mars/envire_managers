@@ -179,7 +179,7 @@ namespace mars {
             bool update_all_nodes;
             int visual_rep;
             NodeMap simNodes;
-            //NodeMap simNodesDyn;
+            NodeMap simNodesDyn;
             NodeMap nodesToUpdate;
             //std::list<mars::interfaces::NodeData> simNodesReload;
             int maxGroupID;

@@ -78,10 +78,9 @@ namespace mars {
       mars::utils::Vector an;
 
       if (!reload) {
-        LOG_ERROR(("EnvireJointManager::addNode: Reload is not implemented: " + jointS->name).c_str());
-      //  iMutex.lock();
-      //  simJointsReload.push_back(*jointS);
-      //  iMutex.unlock();
+        iMutex.lock();
+        simJointsReload.push_back(*jointS);
+        iMutex.unlock();
       }
 
       //if(jointS->axis1.lengthSquared() < Vector::EPSILON && jointS->type != JOINT_TYPE_FIXED) {
@@ -274,11 +273,10 @@ namespace mars {
     }
 
     void EnvireJointManager::reloadJoints(void) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      // list<JointData>::iterator iter;
-      // //MutexLocker locker(&iMutex);
-      // for(iter = simJointsReload.begin(); iter != simJointsReload.end(); iter++)
-      //   addJoint(&(*iter), true);
+      std::list<mars::interfaces::JointData>::iterator iter;
+      //MutexLocker locker(&iMutex);
+      for(iter = simJointsReload.begin(); iter != simJointsReload.end(); iter++)
+        addJoint(&(*iter), true);
     }
 
     void EnvireJointManager::updateJoints(mars::interfaces::sReal calc_ms) {

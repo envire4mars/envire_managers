@@ -112,7 +112,7 @@ namespace mars {
     private:
       unsigned long next_joint_id;
       JointMap simJoints;
-      //std::list<mars::interfaces::JointData> simJointsReload;
+      std::list<mars::interfaces::JointData> simJointsReload;
       mars::interfaces::ControlCenter *control;
       mutable mars::utils::Mutex iMutex;
 
