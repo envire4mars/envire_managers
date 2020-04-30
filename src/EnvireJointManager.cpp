@@ -91,7 +91,7 @@ namespace mars {
       }
 
       // create an interface object to the physics
-      newJointInterface.reset(mars::sim::PhysicsMapper::newJointPhysics(control->sim->getPhysics()).get());
+      newJointInterface = mars::sim::PhysicsMapper::newJointPhysics(control->sim->getPhysics());
       // reset the anchor
       //if node index is 0, the node connects to the environment.
       std::shared_ptr<mars::sim::SimNode> node1 = control->nodes->getSimNode(jointS->nodeIndex1);
