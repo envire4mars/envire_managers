@@ -45,12 +45,16 @@ namespace mars {
       {
 
       public:
+
         static std::shared_ptr<EnvireStorageManager> instance() {
         //NOTE it is important that instance is a local static variable because we need a way to 
         //     control static initialization/destruction order.
         //     If instance is global the static initialization order depends on the order in which 
         //     libraries are loaded which may lead to strange crashes          
-            static std::shared_ptr<EnvireStorageManager> storage(new EnvireStorageManager());
+            // Static variables are created and initialised when their
+            // definition is run through for the first time. The variable and
+            // its content are then retained until the end of the program.
+            static std::shared_ptr<EnvireStorageManager> storage(new EnvireStorageManager()); 
             return storage;
         }
 
