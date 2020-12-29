@@ -333,6 +333,7 @@ namespace mars {
       for (iter = simMotors.begin(); iter != simMotors.end(); iter++)
         if (iter->second->getName() == name)
           return iter->second.get();
+      LOG_ERROR("Requested motor %s not found", name.c_str());
       return NULL;
     }
 
