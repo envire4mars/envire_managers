@@ -1763,7 +1763,13 @@ namespace mars {
      * \return Vector filled with the ids of the node if it exists, otherwise emtpy vector
      */
     std::vector<mars::interfaces::NodeId> EnvireNodeManager::getNodeIDs(const std::string& str_in_name) const {
-         printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+        #ifdef DEBUG_ENVIRE_MANAGERS
+            LOG_DEBUG("WARNING: Assuming only one name matches : " +std::string(__PRETTY_FUNCTION__));
+        #endif
+
+        mars::interfaces::NodeId id = getID(str_in_name);
+        std::vector<mars::interfaces::NodeId> nodeIDs;
+        nodeIDs.push_back(id);
     //   iMutex.lock();
     //   NodeMap::const_iterator iter;
     //   std::vector<interfaces::NodeId> out;
@@ -1774,7 +1780,7 @@ namespace mars {
     //   }
     //   iMutex.unlock();
     //   return out;
-        return std::vector<mars::interfaces::NodeId>();
+        return nodeIDs;
     }
 
      void EnvireNodeManager::pushToUpdate(mars::sim::SimNode* node) {
