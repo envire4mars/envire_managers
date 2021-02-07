@@ -12,6 +12,8 @@ namespace mars {
 //#define DUMPED_MLS_FRAME_NAME std::string("mls_map") // The name of the frame in which to find a mls in a .graph file
 #define DUMPED_MLS_FRAME_NAME std::string("map") // The name of the frame in which to find a mls in a .graph file
 #define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"
+//#define DEBUG_ENVIRE_MANAGERS 1
+
 
 /*// TODO: should be set over config
 #define MLS_FRAME_NAME std::string("mls_01")

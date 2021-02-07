@@ -122,7 +122,9 @@ namespace mars {
 
         // ------ NOT RELOADED OBJECTS -> TERRAIN
         if (reload == false) {
-            LOG_INFO(("EnvireNodeManager::addNode: non reloaded object Terrain: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_INFO(("EnvireNodeManager::addNode: non reloaded object Terrain: " + nodeS->name).c_str());
+            #endif
             iMutex.lock();
 
             //TODO: check if we can take out the mars_graphics
@@ -181,7 +183,9 @@ namespace mars {
         // ------ NODE_TYPE_MESH
         // convert obj to ode mesh
         if((nodeS->physicMode == mars::interfaces::NODE_TYPE_MESH) && (nodeS->terrain == 0) ) {
-            LOG_INFO(("EnvireNodeManager::addNode: NODE_TYPE_MESH: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: NODE_TYPE_MESH: " + nodeS->name).c_str());
+            #endif
             if(!control->loadCenter) {
                 LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
                 return INVALID_ID;
@@ -204,7 +208,9 @@ namespace mars {
 
         // ------ NODE_TYPE_TERRAIN
         if((nodeS->physicMode == mars::interfaces::NODE_TYPE_TERRAIN) && nodeS->terrain ) {
-            LOG_DEBUG(("EnvireNodeManager::addNode: NODE_TYPE_TERRAIN and nodeS->terrain: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: NODE_TYPE_TERRAIN and nodeS->terrain: " + nodeS->name).c_str());
+            #endif
             if(!nodeS->terrain->pixelData) {
                 if(!control->loadCenter) {
                     LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
@@ -253,7 +259,9 @@ namespace mars {
 
         // ------ PHYSICAL NODE
         if(nodeS->noPhysical == false) {
-            LOG_INFO(("EnvireNodeManager::addNode: physical: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: physical: " + nodeS->name).c_str());
+            #endif
             // create an interface object to the physics
             std::shared_ptr<mars::interfaces::NodeInterface> newNodeInterface = mars::sim::PhysicsMapper::newNodePhysics(control->sim->getPhysics());
 
@@ -295,7 +303,9 @@ namespace mars {
             control->sim->sceneHasChanged(false);
             mars::interfaces::NodeId id;
         } else {  // ------ NONE PHYSICAL NODE
-            LOG_INFO(("EnvireNodeManager::addNode: nonPhysical: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: nonPhysical: " + nodeS->name).c_str());
+            #endif
 
             iMutex.lock();
             // if frame is not in the graph, create one
@@ -310,7 +320,9 @@ namespace mars {
             // add node into the graph
             SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
             EnvireStorageManager::instance()->getGraph()->addItemToFrame(nodeS->frameID, newNodeItemPtr);
-            LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
+            #endif
 
             simNodes[nodeS->index] = newNodeItemPtr;
             //if (nodeS->movable)
