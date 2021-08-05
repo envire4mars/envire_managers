@@ -1691,6 +1691,18 @@ namespace mars {
             return INVALID_ID;
     }
 
+    mars::interfaces::NodeId EnvireNodeManager::getDrawID2(mars::interfaces::NodeId id) const {
+        // FIX: move this into envire graph viz
+        // Take care of the nodeid 0, it is part of sim
+        // TODO_A: introduce draw interface manager to separate node from visualisation
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            return iter->second->getData()->getGraphicsID2();
+        else
+            return INVALID_ID;
+    }
+
 
     const mars::utils::Vector EnvireNodeManager::getContactForce(mars::interfaces::NodeId id) const {
         mars::utils::MutexLocker locker(&iMutex);

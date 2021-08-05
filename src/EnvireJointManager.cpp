@@ -443,6 +443,18 @@ namespace mars {
     }
 
     /**
+     * Retrieve the ids of all joints connected to the given node
+     * \param node_id Id of the connected node
+     * \return vector of ids of the joints if they exist any, otherwise empty
+     */
+    std::vector<unsigned long> EnvireJointManager::getIDsByNodeID(unsigned long node_id){
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+      std::vector<unsigned long> res = {0};
+      return res;
+
+    }
+
+    /**
      * Retrieve the id of a joint by the ids of the connected nodes
      * \param id1, id2 Ids of the connected nodes
      * \return Id of the joint if it exists, otherwise 0
