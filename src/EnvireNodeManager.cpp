@@ -255,14 +255,14 @@ namespace mars {
         if(nodeS->noPhysical == false) {
             LOG_INFO(("EnvireNodeManager::addNode: physical: " + nodeS->name).c_str());
             // create an interface object to the physics
-            mars::interfaces::NodeInterface *newNodeInterface = mars::sim::PhysicsMapper::newNodePhysics(control->sim->getPhysics());
+            std::shared_ptr<mars::interfaces::NodeInterface> newNodeInterface = mars::sim::PhysicsMapper::newNodePhysics(control->sim->getPhysics());
 
             // can not create physics
             if (!newNodeInterface->createNode(nodeS)) {
                 // if no node was created in physics
                 // delete the objects
                 newNode.reset();
-                delete newNodeInterface;
+                newNodeInterface.reset();
                 // and return false
                 LOG_ERROR("EnvireNodeManager::addNode: No node was created in physics.");
                 return INVALID_ID;
@@ -770,26 +770,22 @@ namespace mars {
 
 
    const mars::utils::Vector EnvireNodeManager::getPosition(mars::interfaces::NodeId id) const {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-          return mars::utils::Vector();
-  //     mars::utils::Vector pos(0.0,0.0,0.0);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       pos = iter->second->getPosition();
-  //     return pos;
+       mars::utils::Vector pos(0.0,0.0,0.0);
+       mars::utils::MutexLocker locker(&iMutex);
+       NodeMap::const_iterator iter = simNodes.find(id);
+       if (iter != simNodes.end())
+            pos = iter->second->getData()->getPosition();
+       return pos;
    }
 
 
    const mars::utils::Quaternion EnvireNodeManager::getRotation(mars::interfaces::NodeId id) const {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-          return  mars::utils::Quaternion();
-  //     mars::utils::Quaternion q(mars::utils::Quaternion::Identity());
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       q = iter->second->getRotation();
-  //     return q;
+       mars::utils::Quaternion q(mars::utils::Quaternion::Identity());
+       mars::utils::MutexLocker locker(&iMutex);
+       NodeMap::const_iterator iter = simNodes.find(id);
+       if (iter != simNodes.end())
+         q = iter->second->getData()->getRotation();
+       return q;
    }
 
 
@@ -898,19 +894,18 @@ namespace mars {
   //    *\brief Adds a physical sensor to the node with the given id.
   //    */
      void EnvireNodeManager::addNodeSensor(mars::interfaces::BaseNodeSensor *sensor){
-            printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::iterator iter = simNodes.find(sensor->getAttachedNode());
-  //     if (iter != simNodes.end()) {
-  //       iter->second->addSensor(sensor);
-  //       NodeMap::iterator kter = simNodesDyn.find(sensor->getAttachedNode());
-  //       if (kter == simNodesDyn.end())
-  //         simNodesDyn[iter->first] = iter->second;
-  //     }
-  //     else
-  //       {
-  //         std::cerr << "Could not find node id " << sensor->getAttachedNode() << " in simNodes and did not call addSensors on the node." << std::endl;
-  //       }
+       mars::utils::MutexLocker locker(&iMutex);
+       NodeMap::iterator iter = simNodes.find(sensor->getAttachedNode());
+       if (iter != simNodes.end()) {
+         iter->second->getData()->addSensor(sensor);
+         NodeMap::iterator kter = simNodesDyn.find(sensor->getAttachedNode());
+         if (kter == simNodesDyn.end())
+           simNodesDyn[iter->first] = iter->second;
+       }
+       else
+         {
+           std::cerr << "Could not find node id " << sensor->getAttachedNode() << " in simNodes and did not call addSensors on the node." << std::endl;
+         }
    }
 
     void EnvireNodeManager::reloadNodeSensor(mars::interfaces::BaseNodeSensor* sensor) {
@@ -1013,11 +1008,11 @@ namespace mars {
 
 
     void EnvireNodeManager::recursiveHelper(mars::interfaces::NodeId id, const Params *params,
-                                      std::vector<mars::sim::SimJoint*> *joints,
+                                      std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                       std::vector<int> *gids,
                                       NodeMap *nodes,
                                       void (*applyFunc)(mars::sim::SimNode *, const Params *)) {
-      std::vector<mars::sim::SimJoint*>::iterator iter;
+      std::vector<std::shared_ptr<mars::sim::SimJoint>>::iterator iter;
       std::vector<int>::iterator jter;
       NodeMap::iterator nter;
       mars::interfaces::NodeId id2;
@@ -1124,8 +1119,8 @@ namespace mars {
         editedNode->rotateAtPoint(pivot, q, true);
 
         if (includeConnected) {
-            std::vector<mars::sim::SimJoint*> joints = control->joints->getSimJoints();
-            std::vector<mars::sim::SimJoint*>::iterator jter;
+            std::vector<std::shared_ptr<mars::sim::SimJoint>> joints = control->joints->getSimJoints();
+            std::vector<std::shared_ptr<mars::sim::SimJoint>>::iterator jter;
             for(jter=joints.begin(); jter!=joints.end(); ++jter) {
                 if((*jter)->getIndex() == excludeJointId) {
                     joints.erase(jter);
@@ -1186,7 +1181,7 @@ namespace mars {
      void EnvireNodeManager::rotateNodeRecursive(mars::interfaces::NodeId id,
                                            const mars::utils::Vector &rotation_point,
                                            const mars::utils::Quaternion &rotation,
-                                           std::vector<mars::sim::SimJoint*> *joints,
+                                           std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                            std::vector<int> *gids,
                                            NodeMap *nodes) {
         RotationParams params;
@@ -1791,7 +1786,7 @@ namespace mars {
             return connected;
 
         std::shared_ptr<mars::sim::SimNode> currentNode = iter->second->getData();
-        std::vector<mars::sim::SimJoint*> simJoints = control->joints->getSimJoints();
+        std::vector<std::shared_ptr<mars::sim::SimJoint>> simJoints = control->joints->getSimJoints();
 
         // find all nodes that belong to the same group as the current node
         if (currentNode->getGroupID() != 0){

@@ -179,7 +179,7 @@ namespace mars {
             bool update_all_nodes;
             int visual_rep;
             NodeMap simNodes;
-            //NodeMap simNodesDyn;
+            NodeMap simNodesDyn;
             NodeMap nodesToUpdate;
             //std::list<mars::interfaces::NodeData> simNodesReload;
             int maxGroupID;
@@ -197,7 +197,7 @@ namespace mars {
             // recursively walks through the gids and joints and
             // applies the applyFunc with the given parameters.
             void recursiveHelper(mars::interfaces::NodeId id, const Params *params,
-                                 std::vector<mars::sim::SimJoint*> *joints,
+                                 std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                  std::vector<int> *gids,
                                  NodeMap *nodes,
                                  void (*applyFunc)(mars::sim::SimNode *node, const Params *params));
@@ -208,7 +208,7 @@ namespace mars {
             void rotateNodeRecursive(mars::interfaces::NodeId id,
                                      const mars::utils::Vector &rotation_point,
                                      const mars::utils::Quaternion &rotation,
-                                     std::vector<mars::sim::SimJoint*> *joints,
+                                     std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                      std::vector<int> *gids,
                                      NodeMap *nodes);
             // these static methods are used by moveNodeRecursive and rotateNodeRecursive

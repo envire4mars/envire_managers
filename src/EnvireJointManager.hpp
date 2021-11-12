@@ -71,7 +71,7 @@ namespace mars {
       virtual void removeJoint(unsigned long index);
       virtual void removeJointByIDs(unsigned long id1, unsigned long id2);
       virtual std::shared_ptr<mars::sim::SimJoint> getSimJoint(unsigned long id);
-      virtual std::vector<mars::sim::SimJoint*> getSimJoints(void);
+      virtual std::vector<std::shared_ptr<mars::sim::SimJoint>> getSimJoints(void);
       virtual void reattacheJoints(unsigned long node_id);
       virtual void reloadJoints(void);
       virtual void updateJoints(mars::interfaces::sReal calc_ms);
@@ -112,7 +112,7 @@ namespace mars {
     private:
       unsigned long next_joint_id;
       JointMap simJoints;
-      //std::list<mars::interfaces::JointData> simJointsReload;
+      std::list<mars::interfaces::JointData> simJointsReload;
       mars::interfaces::ControlCenter *control;
       mutable mars::utils::Mutex iMutex;
 

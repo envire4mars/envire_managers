@@ -193,7 +193,7 @@ namespace mars {
             if (joint_data.name == jointName)
             {
               jointFound = true;
-              simMotor->attachJoint(simJoint.get());
+              simMotor->attachJoint(simJoint);
               SimMotorItemPtr simMotorItem(new envire::core::Item<shared_ptr<mars::sim::SimMotor>>(simMotor));
               EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameName, simMotorItem);
             }
@@ -595,6 +595,14 @@ namespace mars {
           parentmotor->addMimic(simMotors[it->first].get());
       }
     }
+
+    void EnvireMotorManager::setOfflinePosition(interfaces::MotorId id,
+                                                interfaces::sReal pos) {
+      MutexLocker locker(&iMutex);
+      map<unsigned long, std::shared_ptr<mars::sim::SimMotor>>::const_iterator iter = simMotors.find(id);
+      if (iter != simMotors.end())
+        iter->second->setOfflinePosition(pos);
+      }
 
     void EnvireMotorManager::updatePositionsFromGraph(){
 

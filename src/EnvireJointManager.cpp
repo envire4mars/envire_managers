@@ -73,15 +73,14 @@ namespace mars {
       std::vector<mars::sim::SimNode*>::iterator iter;
 
 
-      mars::interfaces::NodeInterface *i_node1 = 0;
-      mars::interfaces::NodeInterface *i_node2 = 0;
+      std::shared_ptr<mars::interfaces::NodeInterface> i_node1 = 0;
+      std::shared_ptr<mars::interfaces::NodeInterface> i_node2 = 0;
       mars::utils::Vector an;
 
       if (!reload) {
-        LOG_ERROR(("EnvireJointManager::addNode: Reload is not implemented: " + jointS->name).c_str());
-      //  iMutex.lock();
-      //  simJointsReload.push_back(*jointS);
-      //  iMutex.unlock();
+        iMutex.lock();
+        simJointsReload.push_back(*jointS);
+        iMutex.unlock();
       }
 
       //if(jointS->axis1.lengthSquared() < Vector::EPSILON && jointS->type != JOINT_TYPE_FIXED) {
@@ -91,7 +90,7 @@ namespace mars {
       }
 
       // create an interface object to the physics
-      newJointInterface.reset(mars::sim::PhysicsMapper::newJointPhysics(control->sim->getPhysics()));
+      newJointInterface = mars::sim::PhysicsMapper::newJointPhysics(control->sim->getPhysics());
       // reset the anchor
       //if node index is 0, the node connects to the environment.
       std::shared_ptr<mars::sim::SimNode> node1 = control->nodes->getSimNode(jointS->nodeIndex1);
@@ -251,12 +250,12 @@ namespace mars {
     }
 
 
-    std::vector<mars::sim::SimJoint*> EnvireJointManager::getSimJoints(void) {
-      std::vector<mars::sim::SimJoint*> v_simJoints;
+    std::vector<std::shared_ptr<mars::sim::SimJoint>> EnvireJointManager::getSimJoints(void) {
+      std::vector<std::shared_ptr<mars::sim::SimJoint>> v_simJoints;
       JointMap::iterator iter;
       mars::utils::MutexLocker locker(&iMutex);
       for (iter = simJoints.begin(); iter != simJoints.end(); iter++)
-        v_simJoints.push_back(iter->second->getData().get());
+        v_simJoints.push_back(iter->second->getData());
       return v_simJoints;
     }
 
@@ -274,11 +273,10 @@ namespace mars {
     }
 
     void EnvireJointManager::reloadJoints(void) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      // list<JointData>::iterator iter;
-      // //MutexLocker locker(&iMutex);
-      // for(iter = simJointsReload.begin(); iter != simJointsReload.end(); iter++)
-      //   addJoint(&(*iter), true);
+      std::list<mars::interfaces::JointData>::iterator iter;
+      //MutexLocker locker(&iMutex);
+      for(iter = simJointsReload.begin(); iter != simJointsReload.end(); iter++)
+        addJoint(&(*iter), true);
     }
 
     void EnvireJointManager::updateJoints(mars::interfaces::sReal calc_ms) {
