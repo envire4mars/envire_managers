@@ -44,6 +44,7 @@
 #include <mars/data_broker/DataBrokerInterface.h>
 
 #include "EnvireStorageManager.hpp"
+#include "EnvireDefs.hpp"
 
 namespace mars {
   namespace plugins {
@@ -67,7 +68,9 @@ namespace mars {
       if (jointS->frameID.empty())
             jointS->frameID = jointS->name;
 
-      LOG_DEBUG(("EnvireJointManager::addJoint: " + jointS->name).c_str());
+      #ifdef DEBUG_ENVIRE_MANAGERS
+        LOG_DEBUG(("EnvireJointManager::addJoint: " + jointS->name).c_str());
+      #endif
 
       std::shared_ptr<mars::interfaces::JointInterface> newJointInterface;
       std::vector<mars::sim::SimNode*>::iterator iter;
@@ -94,13 +97,16 @@ namespace mars {
       // reset the anchor
       //if node index is 0, the node connects to the environment.
       std::shared_ptr<mars::sim::SimNode> node1 = control->nodes->getSimNode(jointS->nodeIndex1);
-      LOG_DEBUG(("EnvireJointManager::addJoint: node1: " + node1->getName()).c_str());
+
       if (node1)
         i_node1 = node1->getInterface();
 
       std::shared_ptr<mars::sim::SimNode> node2 = control->nodes->getSimNode(jointS->nodeIndex2);
 
-      LOG_DEBUG(("EnvireJointManager::addJoint: node2: " + node2->getName()).c_str());
+      #ifdef DEBUG_ENVIRE_MANAGERS
+        LOG_DEBUG(("EnvireJointManager::addJoint: node1: " + node1->getName()).c_str());
+        LOG_DEBUG(("EnvireJointManager::addJoint: node2: " + node2->getName()).c_str());
+      #endif
 
       if (node2) i_node2 = node2->getInterface();
 
@@ -434,6 +440,18 @@ namespace mars {
           return joint.index;
       }
       return 0;
+    }
+
+    /**
+     * Retrieve the ids of all joints connected to the given node
+     * \param node_id Id of the connected node
+     * \return vector of ids of the joints if they exist any, otherwise empty
+     */
+    std::vector<unsigned long> EnvireJointManager::getIDsByNodeID(unsigned long node_id){
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+      std::vector<unsigned long> res = {0};
+      return res;
+
     }
 
     /**

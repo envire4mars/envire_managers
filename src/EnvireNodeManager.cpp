@@ -122,7 +122,9 @@ namespace mars {
 
         // ------ NOT RELOADED OBJECTS -> TERRAIN
         if (reload == false) {
-            LOG_INFO(("EnvireNodeManager::addNode: non reloaded object Terrain: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_INFO(("EnvireNodeManager::addNode: non reloaded object Terrain: " + nodeS->name).c_str());
+            #endif
             iMutex.lock();
 
             //TODO: check if we can take out the mars_graphics
@@ -181,7 +183,9 @@ namespace mars {
         // ------ NODE_TYPE_MESH
         // convert obj to ode mesh
         if((nodeS->physicMode == mars::interfaces::NODE_TYPE_MESH) && (nodeS->terrain == 0) ) {
-            LOG_INFO(("EnvireNodeManager::addNode: NODE_TYPE_MESH: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: NODE_TYPE_MESH: " + nodeS->name).c_str());
+            #endif
             if(!control->loadCenter) {
                 LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
                 return INVALID_ID;
@@ -204,7 +208,9 @@ namespace mars {
 
         // ------ NODE_TYPE_TERRAIN
         if((nodeS->physicMode == mars::interfaces::NODE_TYPE_TERRAIN) && nodeS->terrain ) {
-            LOG_DEBUG(("EnvireNodeManager::addNode: NODE_TYPE_TERRAIN and nodeS->terrain: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: NODE_TYPE_TERRAIN and nodeS->terrain: " + nodeS->name).c_str());
+            #endif
             if(!nodeS->terrain->pixelData) {
                 if(!control->loadCenter) {
                     LOG_ERROR("EnvireNodeManager:: loadCenter is missing, can not create Node");
@@ -253,7 +259,9 @@ namespace mars {
 
         // ------ PHYSICAL NODE
         if(nodeS->noPhysical == false) {
-            LOG_INFO(("EnvireNodeManager::addNode: physical: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: physical: " + nodeS->name).c_str());
+            #endif
             // create an interface object to the physics
             std::shared_ptr<mars::interfaces::NodeInterface> newNodeInterface = mars::sim::PhysicsMapper::newNodePhysics(control->sim->getPhysics());
 
@@ -295,7 +303,9 @@ namespace mars {
             control->sim->sceneHasChanged(false);
             mars::interfaces::NodeId id;
         } else {  // ------ NONE PHYSICAL NODE
-            LOG_INFO(("EnvireNodeManager::addNode: nonPhysical: " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("EnvireNodeManager::addNode: nonPhysical: " + nodeS->name).c_str());
+            #endif
 
             iMutex.lock();
             // if frame is not in the graph, create one
@@ -310,7 +320,9 @@ namespace mars {
             // add node into the graph
             SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
             EnvireStorageManager::instance()->getGraph()->addItemToFrame(nodeS->frameID, newNodeItemPtr);
-            LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
+            #ifdef DEBUG_ENVIRE_MANAGERS
+                LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
+            #endif
 
             simNodes[nodeS->index] = newNodeItemPtr;
             //if (nodeS->movable)
@@ -1679,6 +1691,18 @@ namespace mars {
             return INVALID_ID;
     }
 
+    mars::interfaces::NodeId EnvireNodeManager::getDrawID2(mars::interfaces::NodeId id) const {
+        // FIX: move this into envire graph viz
+        // Take care of the nodeid 0, it is part of sim
+        // TODO_A: introduce draw interface manager to separate node from visualisation
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            return iter->second->getData()->getGraphicsID2();
+        else
+            return INVALID_ID;
+    }
+
 
     const mars::utils::Vector EnvireNodeManager::getContactForce(mars::interfaces::NodeId id) const {
         mars::utils::MutexLocker locker(&iMutex);
@@ -1751,7 +1775,13 @@ namespace mars {
      * \return Vector filled with the ids of the node if it exists, otherwise emtpy vector
      */
     std::vector<mars::interfaces::NodeId> EnvireNodeManager::getNodeIDs(const std::string& str_in_name) const {
-         printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+        #ifdef DEBUG_ENVIRE_MANAGERS
+            LOG_DEBUG("WARNING: Assuming only one name matches : " +std::string(__PRETTY_FUNCTION__));
+        #endif
+
+        mars::interfaces::NodeId id = getID(str_in_name);
+        std::vector<mars::interfaces::NodeId> nodeIDs;
+        nodeIDs.push_back(id);
     //   iMutex.lock();
     //   NodeMap::const_iterator iter;
     //   std::vector<interfaces::NodeId> out;
@@ -1762,7 +1792,7 @@ namespace mars {
     //   }
     //   iMutex.unlock();
     //   return out;
-        return std::vector<mars::interfaces::NodeId>();
+        return nodeIDs;
     }
 
      void EnvireNodeManager::pushToUpdate(mars::sim::SimNode* node) {
