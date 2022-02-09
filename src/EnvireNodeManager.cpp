@@ -430,29 +430,32 @@ namespace mars {
   //    * doc has to be written
   //    */
      void EnvireNodeManager::editNode(mars::interfaces::NodeData *nodeS, int changes) {
+        NodeMap::iterator iter;
+        std::vector<mars::sim::SimJoint*>::iterator jter;
+        std::vector<int> gids;
+        NodeMap::iterator it;
+        mars::utils::Vector offset;
+        mars::utils::Vector rotation_point;
+
+        //cout << "EnvireNodeManager::editNode !!!" << endl;
+        // first lock all core functions
+        iMutex.lock();
+
+        iter = simNodes.find(nodeS->index);
+        if(iter == simNodes.end()) {
+            iMutex.unlock();
+            std::cout << "DID NOT FIND NODE" << std::endl;
+            LOG_ERROR("EnvireNodeManager::editNode: node id not found!");
+            return;
+        }
+        std::shared_ptr<mars::sim::SimNode> editedNode =  iter->second->getData();
+        mars::interfaces::NodeData sNode = editedNode->getSNode();
+        if(changes & mars::interfaces::EDIT_NODE_POS) {
             printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     NodeMap::iterator iter;
-  //     std::vector<mars::sim::SimJoint*>::iterator jter;
-  //     std::vector<int> gids;
-  //     NodeMap::iterator it;
-  //     mars::utils::Vector offset;
-  //     mars::utils::Vector rotation_point;
+            iMutex.unlock();
+            return;
 
-  //     //cout << "EnvireNodeManager::editNode !!!" << endl;
-  //     // first lock all core functions
-  //     iMutex.lock();
-
-  //     iter = simNodes.find(nodeS->index);
-  //     if(iter == simNodes.end()) {
-  //       iMutex.unlock();
-  //       LOG_ERROR("EnvireNodeManager::editNode: node id not found!");
-  //       return;
-  //     }
-
-  //     mars::sim::SimNode *editedNode = iter->second;
-  //     mars::interfaces::NodeData sNode = editedNode->getSNode();
-  //     if(changes & mars::interfaces::EDIT_NODE_POS) {
-  //       if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
+  //          if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
   //         // first move the node an all nodes of the group
   //         offset = editedNode->setPosition(nodeS->pos, true);
   //         // then move recursive all nodes that are connected through
@@ -464,7 +467,7 @@ namespace mars {
   //         std::vector<mars::sim::SimJoint*> jointsj = joints;
   //         nodes.erase(nodes.find(editedNode->getID()));
   //         moveNodeRecursive(nodeS->index, offset, &joints, &gids, &nodes);
-  //       } else {
+  //          } else {
   //         if(nodeS->relative_id) {
   //           iMutex.unlock();
   //           setNodeStructPositionFromRelative(nodeS);
@@ -493,12 +496,15 @@ namespace mars {
   //         iMutex.unlock();
   //         resetRelativeJoints(*editedNode, &nodesj, &jointsj);
   //         iMutex.lock();
-  //       }
+  //          }
   //       update_all_nodes = true;
-  //     }
-  //     if(changes & mars::interfaces::EDIT_NODE_ROT) {
+        }
+        if(changes & mars::interfaces::EDIT_NODE_ROT) {
+            printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+            iMutex.unlock();
+            return;
   //       mars::utils::Quaternion q(mars::utils::Quaternion::Identity());
-  //       if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
+  //          if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
   //         // first move the node an all nodes of the group
   //         rotation_point = editedNode->getPosition();
   //         // the first node have to be rotated normal, not at a point
@@ -514,7 +520,7 @@ namespace mars {
   //         nodes.erase(nodes.find(editedNode->getID()));
   //         rotateNodeRecursive(nodeS->index, rotation_point, q, &joints,
   //                             &gids, &nodes);
-  //       } else {
+  //          } else {
   //         if(nodeS->relative_id) {
   //           iMutex.unlock();
   //           setNodeStructPositionFromRelative(nodeS);
@@ -550,35 +556,35 @@ namespace mars {
   //         iMutex.unlock(); // is this desired???
   //         resetRelativeJoints(*editedNode, &nodesj, &jointsj);
   //         iMutex.lock();
-  //       }
+  //          }
   //       update_all_nodes = true;
-  //     }
-  //     if ((changes & mars::interfaces::EDIT_NODE_SIZE) || (changes & mars::interfaces::EDIT_NODE_TYPE) || (changes & mars::interfaces::EDIT_NODE_CONTACT) ||
-  //         (changes & mars::interfaces::EDIT_NODE_MASS) || (changes & mars::interfaces::EDIT_NODE_NAME) ||
-  //         (changes & mars::interfaces::EDIT_NODE_GROUP) || (changes & mars::interfaces::EDIT_NODE_PHYSICS)) {
-  //       //cout << "mars::interfaces::EDIT_NODE_SIZE !!!" << endl;
-  //       mars::interfaces::NodeData sNode = editedNode->getSNode();
-  //       if(control->graphics) {
-  //         mars::utils::Vector scale;
-  //         if(sNode.filename == "PRIMITIVE") {
-  //           scale = nodeS->ext;
-  //           if(sNode.physicMode == mars::interfaces::NODE_TYPE_SPHERE) {
-  //             scale.x() *= 2;
-  //             scale.y() = scale.z() = scale.x();
-  //           }
-  //           // todo: set scale for cylinder and capsule
-  //         } else {
-  //           scale = sNode.visual_size-sNode.ext;
-  //           scale += nodeS->ext;
-  //           nodeS->visual_size = scale;
-  //         }
-  //         control->graphics->setDrawObjectScale(editedNode->getGraphicsID(), scale);
-  //         control->graphics->setDrawObjectScale(editedNode->getGraphicsID2(), nodeS->ext);
-  //       }
-  //       editedNode->changeNode(nodeS);
-  //       if(nodeS->groupID > maxGroupID) {
-  //         maxGroupID = nodeS->groupID;
-  //       }
+        }
+        if ((changes & mars::interfaces::EDIT_NODE_SIZE) || (changes & mars::interfaces::EDIT_NODE_TYPE) || (changes & mars::interfaces::EDIT_NODE_CONTACT) ||
+            (changes & mars::interfaces::EDIT_NODE_MASS) || (changes & mars::interfaces::EDIT_NODE_NAME) ||
+            (changes & mars::interfaces::EDIT_NODE_GROUP) || (changes & mars::interfaces::EDIT_NODE_PHYSICS)) {
+            //std::cout << "mars::interfaces::EDIT_NODE_SIZE !!!" << std::endl;
+            mars::interfaces::NodeData sNode = editedNode->getSNode();
+            if(control->graphics) {
+                mars::utils::Vector scale;
+                if(sNode.filename == "PRIMITIVE") {
+                    scale = nodeS->ext;
+                    if(sNode.physicMode == mars::interfaces::NODE_TYPE_SPHERE) {
+                    scale.x() *= 2;
+                    scale.y() = scale.z() = scale.x();
+                    }
+                    // todo: set scale for cylinder and capsule
+                } else {
+                    scale = sNode.visual_size-sNode.ext;
+                    scale += nodeS->ext;
+                    nodeS->visual_size = scale;
+                }
+                control->graphics->setDrawObjectScale(editedNode->getGraphicsID(), scale);
+                control->graphics->setDrawObjectScale(editedNode->getGraphicsID2(), nodeS->ext);
+            }
+            editedNode->changeNode(nodeS);
+            if(nodeS->groupID > maxGroupID) {
+                maxGroupID = nodeS->groupID;
+            }
   //       /*
   //         if (changes & mars::interfaces::EDIT_NODE_SIZE) {
   //         NodeMap nodes = simNodes;
@@ -591,17 +597,17 @@ namespace mars {
   //         iMutex.lock();
   //         }
   //       */
-  //     }
-  //     if ((changes & mars::interfaces::EDIT_NODE_MATERIAL)) {
-  //       editedNode->setMaterial(nodeS->material);
-  //       if(control->graphics)
-  //         control->graphics->setDrawObjectMaterial(editedNode->getGraphicsID(),
-  //                                                  nodeS->material);
-  //     }
+        }
+        if ((changes & mars::interfaces::EDIT_NODE_MATERIAL)) {
+            editedNode->setMaterial(nodeS->material);
+            if(control->graphics)
+            control->graphics->setDrawObjectMaterial(editedNode->getGraphicsID(),
+                                                    nodeS->material);
+        }
 
-  //     // vs: updateNodesFromPhysics();
-  //     iMutex.unlock();
-  //     updateDynamicNodes(0, false);
+        // vs: updateNodesFromPhysics();
+        iMutex.unlock();
+        updateDynamicNodes(0, false);
    }
 
     void EnvireNodeManager::changeGroup(mars::interfaces::NodeId id, int group) {
