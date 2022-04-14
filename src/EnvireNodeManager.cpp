@@ -78,10 +78,10 @@ namespace mars {
                                                  libManager(theManager),
                                                  control(c)
     {
-      //if(control->graphics) {
-      //  mars::interfaces::GraphicsUpdateInterface *gui = static_cast<mars::interfaces::GraphicsUpdateInterface*>(this);
-      //  control->graphics->addGraphicsUpdateInterface(gui);
-      //}
+      if(control->graphics) {
+        mars::interfaces::GraphicsUpdateInterface *gui = static_cast<mars::interfaces::GraphicsUpdateInterface*>(this);
+        control->graphics->addGraphicsUpdateInterface(gui);
+      }
 
         // keep updating tree
       EnvireStorageManager::instance()->getGraph()->getTree(SIM_CENTER_FRAME_NAME, true, &graphTreeView);
@@ -448,8 +448,8 @@ namespace mars {
             LOG_ERROR("EnvireNodeManager::editNode: node id not found!");
             return;
         }
-        std::shared_ptr<mars::sim::SimNode> editedNode =  iter->second->getData();
-        mars::interfaces::NodeData sNode = editedNode->getSNode();
+        SimNodeItemPtr editedNode =  iter->second;
+        mars::interfaces::NodeData sNode = editedNode->getData()->getSNode();
         if(changes & mars::interfaces::EDIT_NODE_POS) {
             printf("not implemented : %s\n", __PRETTY_FUNCTION__);
             iMutex.unlock();
@@ -562,29 +562,7 @@ namespace mars {
         if ((changes & mars::interfaces::EDIT_NODE_SIZE) || (changes & mars::interfaces::EDIT_NODE_TYPE) || (changes & mars::interfaces::EDIT_NODE_CONTACT) ||
             (changes & mars::interfaces::EDIT_NODE_MASS) || (changes & mars::interfaces::EDIT_NODE_NAME) ||
             (changes & mars::interfaces::EDIT_NODE_GROUP) || (changes & mars::interfaces::EDIT_NODE_PHYSICS)) {
-            //std::cout << "mars::interfaces::EDIT_NODE_SIZE !!!" << std::endl;
-            mars::interfaces::NodeData sNode = editedNode->getSNode();
-            if(control->graphics) {
-                mars::utils::Vector scale;
-                if(sNode.filename == "PRIMITIVE") {
-                    scale = nodeS->ext;
-                    if(sNode.physicMode == mars::interfaces::NODE_TYPE_SPHERE) {
-                    scale.x() *= 2;
-                    scale.y() = scale.z() = scale.x();
-                    }
-                    // todo: set scale for cylinder and capsule
-                } else {
-                    scale = sNode.visual_size-sNode.ext;
-                    scale += nodeS->ext;
-                    nodeS->visual_size = scale;
-                }
-                control->graphics->setDrawObjectScale(editedNode->getGraphicsID(), scale);
-                control->graphics->setDrawObjectScale(editedNode->getGraphicsID2(), nodeS->ext);
-            }
-            editedNode->changeNode(nodeS);
-            if(nodeS->groupID > maxGroupID) {
-                maxGroupID = nodeS->groupID;
-            }
+            changeNode(editedNode, nodeS);
   //       /*
   //         if (changes & mars::interfaces::EDIT_NODE_SIZE) {
   //         NodeMap nodes = simNodes;
@@ -599,9 +577,9 @@ namespace mars {
   //       */
         }
         if ((changes & mars::interfaces::EDIT_NODE_MATERIAL)) {
-            editedNode->setMaterial(nodeS->material);
+            editedNode->getData()->setMaterial(nodeS->material);
             if(control->graphics)
-            control->graphics->setDrawObjectMaterial(editedNode->getGraphicsID(),
+            control->graphics->setDrawObjectMaterial(editedNode->getData()->getGraphicsID(),
                                                     nodeS->material);
         }
 
@@ -1446,52 +1424,50 @@ namespace mars {
         updateChildPositions(target, invTf.transform * originToRoot, calc_ms, physics_thread);
     }
 
-     void EnvireNodeManager::preGraphicsUpdate() {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  // //  printf("...preGraphicsUpdate...\n");
-  //     NodeMap::iterator iter;
-  //     if(!control->graphics)
-  //       return;
+    void EnvireNodeManager::preGraphicsUpdate() {
+        NodeMap::iterator iter;
+        if(!control->graphics)
+        return;
 
-  //     iMutex.lock();
-  //     if(update_all_nodes) {
-  //       update_all_nodes = false;
-  //       for(iter = simNodes.begin(); iter != simNodes.end(); iter++) {
-  //         control->graphics->setDrawObjectPos(iter->second->getGraphicsID(),
-  //                                             iter->second->getVisualPosition());
-  //         control->graphics->setDrawObjectRot(iter->second->getGraphicsID(),
-  //                                             iter->second->getVisualRotation());
-  //         control->graphics->setDrawObjectPos(iter->second->getGraphicsID2(),
-  //                                             iter->second->getPosition());
-  //         control->graphics->setDrawObjectRot(iter->second->getGraphicsID2(),
-  //                                             iter->second->getRotation());
-  //       }
-  //     }
-  //     else {
-  //       for(iter = simNodesDyn.begin(); iter != simNodesDyn.end(); iter++) {
-  //         control->graphics->setDrawObjectPos(iter->second->getGraphicsID(),
-  //                                             iter->second->getVisualPosition());
-  //         control->graphics->setDrawObjectRot(iter->second->getGraphicsID(),
-  //                                             iter->second->getVisualRotation());
-  //         control->graphics->setDrawObjectPos(iter->second->getGraphicsID2(),
-  //                                             iter->second->getPosition());
-  //         control->graphics->setDrawObjectRot(iter->second->getGraphicsID2(),
-  //                                             iter->second->getRotation());
-  //       }
-  //       for(iter = nodesToUpdate.begin(); iter != nodesToUpdate.end(); iter++) {
-  //         control->graphics->setDrawObjectPos(iter->second->getGraphicsID(),
-  //                                             iter->second->getVisualPosition());
-  //         control->graphics->setDrawObjectRot(iter->second->getGraphicsID(),
-  //                                             iter->second->getVisualRotation());
-  //         control->graphics->setDrawObjectPos(iter->second->getGraphicsID2(),
-  //                                             iter->second->getPosition());
-  //         control->graphics->setDrawObjectRot(iter->second->getGraphicsID2(),
-  //                                             iter->second->getRotation());
-  //       }
-  //       nodesToUpdate.clear();
-  //     }
-  //     iMutex.unlock();
-     }
+        iMutex.lock();
+        if(update_all_nodes) {
+            update_all_nodes = false;
+            for(iter = simNodes.begin(); iter != simNodes.end(); iter++) {
+                control->graphics->setDrawObjectPos(iter->second->getData()->getGraphicsID(),
+                                                    iter->second->getData()->getVisualPosition());
+                control->graphics->setDrawObjectRot(iter->second->getData()->getGraphicsID(),
+                                                    iter->second->getData()->getVisualRotation());
+                control->graphics->setDrawObjectPos(iter->second->getData()->getGraphicsID2(),
+                                                    iter->second->getData()->getPosition());
+                control->graphics->setDrawObjectRot(iter->second->getData()->getGraphicsID2(),
+                                                    iter->second->getData()->getRotation());
+            }
+        }
+        else {
+            for(iter = simNodesDyn.begin(); iter != simNodesDyn.end(); iter++) {
+                control->graphics->setDrawObjectPos(iter->second->getData()->getGraphicsID(),
+                                                    iter->second->getData()->getVisualPosition());
+                control->graphics->setDrawObjectRot(iter->second->getData()->getGraphicsID(),
+                                                    iter->second->getData()->getVisualRotation());
+                control->graphics->setDrawObjectPos(iter->second->getData()->getGraphicsID2(),
+                                                    iter->second->getData()->getPosition());
+                control->graphics->setDrawObjectRot(iter->second->getData()->getGraphicsID2(),
+                                                    iter->second->getData()->getRotation());
+            }
+            for(iter = nodesToUpdate.begin(); iter != nodesToUpdate.end(); iter++) {
+                control->graphics->setDrawObjectPos(iter->second->getData()->getGraphicsID(),
+                                                    iter->second->getData()->getVisualPosition());
+                control->graphics->setDrawObjectRot(iter->second->getData()->getGraphicsID(),
+                                                    iter->second->getData()->getVisualRotation());
+                control->graphics->setDrawObjectPos(iter->second->getData()->getGraphicsID2(),
+                                                    iter->second->getData()->getPosition());
+                control->graphics->setDrawObjectRot(iter->second->getData()->getGraphicsID2(),
+                                                    iter->second->getData()->getRotation());
+            }
+            nodesToUpdate.clear();
+        }
+        iMutex.unlock();
+    }
 
   //   /**
   //    *\brief Removes all nodes from the simulation to clear the world.
@@ -1745,7 +1721,6 @@ namespace mars {
         for(iter = simNodes.begin(); iter != simNodes.end(); iter++) {
             if(id == 0 || iter->first == id) {
                 current = iter->second->getData()->getVisualRep();
-                std::cout << "[EnvireNodeManager::setVisualRep] current: " << iter->second->getData()->getName() << " " << current << std::endl;
                 if(val & 1 && !(current & 1))
                     control->graphics->setDrawObjectShow(iter->second->getData()->getGraphicsID(), true);
                 else if(!(val & 1) && current & 1)
@@ -2030,6 +2005,46 @@ namespace mars {
   //       iter->second->setContactParams(c);
   //     }
      }
+
+    void EnvireNodeManager::changeNode(mars::plugins::envire_managers::SimNodeItemPtr editedNode, mars::interfaces::NodeData *nodeS) {
+      mars::interfaces::NodeData sNode = editedNode->getData()->getSNode();
+      if(control->graphics) {
+        mars::utils::Vector scale;
+        if(sNode.filename == "PRIMITIVE") {
+          scale = nodeS->ext;
+          if(sNode.physicMode == mars::interfaces::NODE_TYPE_SPHERE) {
+            scale.x() *= 2;
+            scale.y() = scale.z() = scale.x();
+          }
+          // todo: set scale for cylinder and capsule
+        } else {
+          scale = sNode.visual_size-sNode.ext;
+          scale += nodeS->ext;
+          nodeS->visual_size = scale;
+        }
+        control->graphics->setDrawObjectScale(editedNode->getData()->getGraphicsID(), scale);
+        control->graphics->setDrawObjectScale(editedNode->getData()->getGraphicsID2(), nodeS->ext);
+      }
+      editedNode->getData()->changeNode(nodeS);
+      if(sNode.groupID != 0 || nodeS->groupID != 0) {
+        for(auto it: simNodes) {
+          if(it.second->getData()->getGroupID() == sNode.groupID ||
+             it.second->getData()->getGroupID() == nodeS->groupID) {
+            control->joints->reattacheJoints(it.second->getData()->getID());
+          }
+        }
+      }
+      // TODO check this function, if we need some updates in the graph
+      // probably we have to remove it from the current frame and
+      // move it to the frame where the new nodes is
+      // this should be done inside reattache jointss
+      control->joints->reattacheJoints(nodeS->index);
+
+      if(nodeS->groupID > maxGroupID) {
+        maxGroupID = nodeS->groupID;
+      }
+      nodesToUpdate[sNode.index] = editedNode;
+    }     
 
   }
   } // end of namespace sim

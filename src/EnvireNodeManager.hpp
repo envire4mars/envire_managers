@@ -173,7 +173,7 @@ namespace mars {
 
             /*virtual void setTfToCenter(envire::core::FrameId frameId, const envire::core::Transform tf);
             virtual void updatePositionsFromGraph();*/
-
+            void changeNode(mars::plugins::envire_managers::SimNodeItemPtr editedNode, mars::interfaces::NodeData *nodeS);
 
           private:
             mars::interfaces::NodeId next_node_id;
