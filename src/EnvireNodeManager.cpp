@@ -109,13 +109,16 @@ namespace mars {
     mars::interfaces::NodeId EnvireNodeManager::addNode(mars::interfaces::NodeData *nodeS, bool reload,
                                 bool loadGraphics) {
 
+        iMutex.lock();
         // FIX: if frameID is not set
         // FIX: add source and target frame id in node data
         // so we can specify where the node should be placed
-        if (nodeS->frameID.empty())
-            nodeS->frameID = nodeS->name;
+        std::string frameID = nodeS->frameID;
+        if (frameID == "")
+            frameID = nodeS->name;
+        //if (nodeS->frameID.empty())
+        //    nodeS->frameID = nodeS->name;
 
-        iMutex.lock();
         nodeS->index = next_node_id;
         next_node_id++;
         iMutex.unlock();
@@ -281,18 +284,19 @@ namespace mars {
             newNode->setInterface(newNodeInterface);
 
             // if frame is not in the graph, create one
-            if (EnvireStorageManager::instance()->getGraph()->containsFrame(nodeS->frameID) == false)
+            if (EnvireStorageManager::instance()->getGraph()->containsFrame(frameID) == false)
             {
-                LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + nodeS->frameID).c_str());
+                std::cout << "[EnvireNodeManager::addNode] create new transformation between center and " + frameID << std::endl;
+                LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + frameID).c_str());
                 envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
                 nodeTransf.time = base::Time::now();
-                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, nodeS->frameID, nodeTransf);
+                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, frameID, nodeTransf);
             }
 
             iMutex.lock();
             // add node into the graph
             SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
-            EnvireStorageManager::instance()->getGraph()->addItemToFrame(nodeS->frameID, newNodeItemPtr);
+            EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
 
             // add node into the node map
             simNodes[nodeS->index] = newNodeItemPtr;
@@ -309,17 +313,17 @@ namespace mars {
 
             iMutex.lock();
             // if frame is not in the graph, create one
-            if (EnvireStorageManager::instance()->getGraph()->containsFrame(nodeS->frameID) == false)
+            if (EnvireStorageManager::instance()->getGraph()->containsFrame(frameID) == false)
             {
-                LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + nodeS->frameID).c_str());
+                LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + frameID).c_str());
                 envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
                 nodeTransf.time = base::Time::now();
-                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, nodeS->frameID, nodeTransf);
+                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, frameID, nodeTransf);
             }
 
             // add node into the graph
             SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
-            EnvireStorageManager::instance()->getGraph()->addItemToFrame(nodeS->frameID, newNodeItemPtr);
+            EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
             #ifdef DEBUG_ENVIRE_MANAGERS
                 LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
             #endif
@@ -585,7 +589,16 @@ namespace mars {
 
         // vs: updateNodesFromPhysics();
         iMutex.unlock();
-        updateDynamicNodes(0, false);
+
+        // we have to update all nodes, since static nodes may be changed inside this function
+        // so we have to keep graph up to date with new node data pose
+        if (editedNode->getData()->isMovable()) {
+            updateNodes(0, false, true);   // update only dynamic nodes
+        }
+        else {
+            updateNodes(0, false, false);    // update all nodes, also static ones
+        }
+        /* updateDynamicNodes(0, false);*/
    }
 
     void EnvireNodeManager::changeGroup(mars::interfaces::NodeId id, int group) {
@@ -1294,6 +1307,10 @@ namespace mars {
      *\brief Updates the Node values of dynamical nodes from the physics.
      */
     void EnvireNodeManager::updateDynamicNodes(mars::interfaces::sReal calc_ms, bool physics_thread) {
+        updateNodes(calc_ms, physics_thread, true);
+    }
+
+    void EnvireNodeManager::updateNodes(mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only) {
         mars::utils::MutexLocker locker(&iMutex);
 
         // FIX: update Graph
@@ -1311,19 +1328,19 @@ namespace mars {
         // update the graph from top to bottom
         // starts with the parent and go to children
         const envire::core::GraphTraits::vertex_descriptor originDesc = EnvireStorageManager::instance()->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
-        updateChildPositions(originDesc, base::TransformWithCovariance::Identity(), calc_ms, physics_thread);
+        updateChildPositions(originDesc, base::TransformWithCovariance::Identity(), calc_ms, physics_thread, dynamic_only);
     }
 
     void EnvireNodeManager::updateChildPositions(const envire::core::GraphTraits::vertex_descriptor vertex,
                                                 const base::TransformWithCovariance& frameToRoot,
-                                                mars::interfaces::sReal calc_ms, bool physics_thread)
+                                                mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only)
     {
         if(graphTreeView.tree.find(vertex) != graphTreeView.tree.end())
         {
             const std::unordered_set<envire::core::GraphTraits::vertex_descriptor>& children = graphTreeView.tree[vertex].children;
             for(const envire::core::GraphTraits::vertex_descriptor child : children)
             {
-                updatePositions(vertex, child, frameToRoot, calc_ms, physics_thread);
+                updatePositions(vertex, child, frameToRoot, calc_ms, physics_thread, dynamic_only);
             }
         }
     }
@@ -1376,9 +1393,8 @@ namespace mars {
     void EnvireNodeManager::updatePositions( const envire::core::GraphTraits::vertex_descriptor origin,
                                         const envire::core::GraphTraits::vertex_descriptor target,
                                         const base::TransformWithCovariance& originToRoot,
-                                        mars::interfaces::sReal calc_ms, bool physics_thread)
+                                        mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only)
     {
-
         envire::core::Transform tf = EnvireStorageManager::instance()->getGraph()->getTransform(origin, target);
 
         if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(target))
@@ -1396,7 +1412,7 @@ namespace mars {
                 // don't update the position of inertial, collision and visuals
                 // since these simnode has static transformation to the frame
                 // the frame updates its pose
-                if (sim_node->isMovable() == true)
+                if (dynamic_only == false || sim_node->isMovable() == true)
                 {
                     // update the physic of sim node
                     sim_node->update(calc_ms, physics_thread);
@@ -2025,6 +2041,7 @@ namespace mars {
         control->graphics->setDrawObjectScale(editedNode->getData()->getGraphicsID(), scale);
         control->graphics->setDrawObjectScale(editedNode->getData()->getGraphicsID2(), nodeS->ext);
       }
+      
       editedNode->getData()->changeNode(nodeS);
       if(sNode.groupID != 0 || nodeS->groupID != 0) {
         for(auto it: simNodes) {
@@ -2034,10 +2051,7 @@ namespace mars {
           }
         }
       }
-      // TODO check this function, if we need some updates in the graph
-      // probably we have to remove it from the current frame and
-      // move it to the frame where the new nodes is
-      // this should be done inside reattache jointss
+
       control->joints->reattacheJoints(nodeS->index);
 
       if(nodeS->groupID > maxGroupID) {

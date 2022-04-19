@@ -78,7 +78,7 @@ namespace mars {
                                                            const mars::utils::Quaternion &orientation=mars::utils::Quaternion::Identity(),
                                                            bool disablePhysics=false);
 
-            virtual mars::interfaces::NodeId addNode(mars::interfaces::NodeData *nodeS,
+            virtual mars::interfaces::NodeId addNode(mars::interfaces::NodeData* const nodeS,
                                                bool reload = false,
                                                bool loadGraphics = true);
 
@@ -102,6 +102,7 @@ namespace mars {
             virtual const mars::utils::Vector getPosition(mars::interfaces::NodeId id) const;
             virtual void setRotation(mars::interfaces::NodeId id, const mars::utils::Quaternion &rot);
             virtual const mars::utils::Quaternion getRotation(mars::interfaces::NodeId id) const;
+            void setPose(mars::interfaces::NodeId id, const mars::utils::Vector &pos, const mars::utils::Quaternion &rot);
             virtual const mars::utils::Vector getLinearVelocity(mars::interfaces::NodeId id) const;
             virtual const mars::utils::Vector getAngularVelocity(mars::interfaces::NodeId id) const;
             virtual const mars::utils::Vector getLinearAcceleration(mars::interfaces::NodeId id) const;
@@ -120,6 +121,7 @@ namespace mars {
             virtual void setReloadFriction(mars::interfaces::NodeId id, mars::interfaces::sReal friction1,
                                            mars::interfaces::sReal friction2);
             virtual void updateDynamicNodes(mars::interfaces::sReal calc_ms, bool physics_thread = true);
+            void updateNodes(mars::interfaces::sReal calc_ms, bool physics_thread = true, bool dynamic_only = true);
             virtual void clearAllNodes(bool clear_all=false, bool clearGraphics=true);
             virtual void setReloadAngle(mars::interfaces::NodeId id, const mars::utils::sRotation &angle);
             virtual void setContactParams(mars::interfaces::NodeId id, const mars::interfaces::contact_params &cp);
@@ -238,14 +240,14 @@ namespace mars {
 
             void updateChildPositions(const envire::core::GraphTraits::vertex_descriptor vertex,
                                       const base::TransformWithCovariance& frameToRoot,
-                                      mars::interfaces::sReal calc_ms, bool physics_thread);
+                                      mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only = true);
 
 
 
             void updatePositions(const envire::core::GraphTraits::vertex_descriptor origin,
                                  const envire::core::GraphTraits::vertex_descriptor target,
                                  const base::TransformWithCovariance& originToRoot,
-                                 mars::interfaces::sReal calc_ms, bool physics_thread);
+                                 mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only = true);
 
             // for passing parameters to the recursiveHelper.
             struct Params
