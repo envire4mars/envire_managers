@@ -267,15 +267,14 @@ namespace mars {
 
 
     void EnvireJointManager::reattacheJoints(unsigned long node_id) {
-       printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-//       JointMap::iterator iter;
-//       MutexLocker locker(&iMutex);
-//       for (iter = simJoints.begin(); iter != simJoints.end(); iter++) {
-//         if (iter->second->getSJoint().nodeIndex1 == node_id ||
-//             iter->second->getSJoint().nodeIndex2 == node_id) {
-//           iter->second->reattachJoint();
-//         }
-//      }
+      JointMap::iterator iter;
+      mars::utils::MutexLocker locker(&iMutex);
+      for (iter = simJoints.begin(); iter != simJoints.end(); iter++) {
+        if (iter->second->getData()->getSJoint().nodeIndex1 == node_id ||
+            iter->second->getData()->getSJoint().nodeIndex2 == node_id) {
+          iter->second->getData()->reattachJoint();
+        }
+     }
     }
 
     void EnvireJointManager::reloadJoints(void) {
