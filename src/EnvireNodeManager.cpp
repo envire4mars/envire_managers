@@ -455,113 +455,106 @@ namespace mars {
         SimNodeItemPtr editedNode =  iter->second;
         mars::interfaces::NodeData sNode = editedNode->getData()->getSNode();
         if(changes & mars::interfaces::EDIT_NODE_POS) {
-            printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-            iMutex.unlock();
-            return;
+            if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
+                // first move the node an all nodes of the group
+                offset = editedNode->getData()->setPosition(nodeS->pos, true);
+                // then move recursive all nodes that are connected through
+                // joints to the node
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> joints = control->joints->getSimJoints();
+                if(editedNode->getData()->getGroupID())
+                    gids.push_back(editedNode->getData()->getGroupID());
+                NodeMap nodes = simNodes;
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> jointsj = joints;
+                nodes.erase(nodes.find(editedNode->getData()->getID()));
+                moveNodeRecursive(nodeS->index, offset, &joints, &gids, &nodes);
+            } else {
+                if(nodeS->relative_id) {
+                    iMutex.unlock();
+                    setNodeStructPositionFromRelative(nodeS);
+                    iMutex.lock();
+                }
+                mars::utils::Vector diff = nodeS->pos - editedNode->getData()->getPosition();
+                editedNode->getData()->setPosition(nodeS->pos, false);
 
-  //          if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
-  //         // first move the node an all nodes of the group
-  //         offset = editedNode->setPosition(nodeS->pos, true);
-  //         // then move recursive all nodes that are connected through
-  //         // joints to the node
-  //         std::vector<mars::sim::SimJoint*> joints = control->joints->getSimJoints();
-  //         if(editedNode->getGroupID())
-  //           gids.push_back(editedNode->getGroupID());
-  //         NodeMap nodes = simNodes;
-  //         std::vector<mars::sim::SimJoint*> jointsj = joints;
-  //         nodes.erase(nodes.find(editedNode->getID()));
-  //         moveNodeRecursive(nodeS->index, offset, &joints, &gids, &nodes);
-  //          } else {
-  //         if(nodeS->relative_id) {
-  //           iMutex.unlock();
-  //           setNodeStructPositionFromRelative(nodeS);
-  //           iMutex.lock();
-  //         }
-  //         mars::utils::Vector diff = nodeS->pos - editedNode->getPosition();
-  //         editedNode->setPosition(nodeS->pos, false);
+                // new implementation in jointManager?
+                NodeMap nodes = simNodes;
+                NodeMap nodesj = simNodes;
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> jointsj = control->joints->getSimJoints();
+                nodes.erase(nodes.find(editedNode->getData()->getID()));
+                moveRelativeNodes(*(editedNode->getData()), &nodes, diff);
 
-  //         // new implementation in jointManager?
-  //         NodeMap nodes = simNodes;
-  //         NodeMap nodesj = simNodes;
-  //         std::vector<mars::sim::SimJoint*> jointsj = control->joints->getSimJoints();
-  //         nodes.erase(nodes.find(editedNode->getID()));
-  //         moveRelativeNodes(*editedNode, &nodes, diff);
-
-  //         if(sNode.groupID != 0) {
-  //           for(it=simNodes.begin(); it!=simNodes.end(); ++it) {
-  //             if(it->second->getGroupID() == sNode.groupID) {
-  //               control->joints->reattacheJoints(it->second->getID());
-  //             }
-  //           }
-  //         }
-  //         else {
-  //           control->joints->reattacheJoints(nodeS->index);
-  //         }
-  //         iMutex.unlock();
-  //         resetRelativeJoints(*editedNode, &nodesj, &jointsj);
-  //         iMutex.lock();
-  //          }
-  //       update_all_nodes = true;
+                if(sNode.groupID != 0) {
+                    for(it=simNodes.begin(); it!=simNodes.end(); ++it) {
+                        if(it->second->getData()->getGroupID() == sNode.groupID) {
+                            control->joints->reattacheJoints(it->second->getData()->getID());
+                        }
+                    }
+                }
+                else {
+                    control->joints->reattacheJoints(nodeS->index);
+                }
+                iMutex.unlock();
+                resetRelativeJoints(*(editedNode->getData()), &nodesj, &jointsj);
+                iMutex.lock();
+            }
+            update_all_nodes = true;
         }
         if(changes & mars::interfaces::EDIT_NODE_ROT) {
-            printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-            iMutex.unlock();
-            return;
-  //       mars::utils::Quaternion q(mars::utils::Quaternion::Identity());
-  //          if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
-  //         // first move the node an all nodes of the group
-  //         rotation_point = editedNode->getPosition();
-  //         // the first node have to be rotated normal, not at a point
-  //         // and should return the relative rotation it executes
-  //         q = editedNode->setRotation(nodeS->rot, true);
-  //         // then rotate recursive all nodes that are connected through
-  //         // joints to the node
-  //         std::vector<mars::sim::SimJoint*> joints = control->joints->getSimJoints();
-  //         if(editedNode->getGroupID())
-  //           gids.push_back(editedNode->getGroupID());
-  //         NodeMap nodes = simNodes;
-  //         std::vector<mars::sim::SimJoint*> jointsj = control->joints->getSimJoints();
-  //         nodes.erase(nodes.find(editedNode->getID()));
-  //         rotateNodeRecursive(nodeS->index, rotation_point, q, &joints,
-  //                             &gids, &nodes);
-  //          } else {
-  //         if(nodeS->relative_id) {
-  //           iMutex.unlock();
-  //           setNodeStructPositionFromRelative(nodeS);
-  //           iMutex.lock();
-  //           mars::interfaces::NodeData da = editedNode->getSNode();
-  //           da.rot = nodeS->rot;
-  //           editedNode->setRelativePosition(da);
-  //         }
-  //         rotation_point = editedNode->getPosition();
-  //         //if(nodeS->relative_id && !load_actual)
-  //         //setNodeStructPositionFromRelative(nodeS);
-  //         q = editedNode->setRotation(nodeS->rot, 0);
+            mars::utils::Quaternion q(mars::utils::Quaternion::Identity());
+            if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
+                // first move the node an all nodes of the group
+                rotation_point = editedNode->getData()->getPosition();
+                // the first node have to be rotated normal, not at a point
+                // and should return the relative rotation it executes
+                q = editedNode->getData()->setRotation(nodeS->rot, true);
+                // then rotate recursive all nodes that are connected through
+                // joints to the node
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> joints = control->joints->getSimJoints();
+                if(editedNode->getData()->getGroupID())
+                    gids.push_back(editedNode->getData()->getGroupID());
+                NodeMap nodes = simNodes;
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> jointsj = control->joints->getSimJoints();
+                nodes.erase(nodes.find(editedNode->getData()->getID()));
+                rotateNodeRecursive(nodeS->index, rotation_point, q, &joints,
+                                    &gids, &nodes);
+            } else {
+                if(nodeS->relative_id) {
+                    iMutex.unlock();
+                    setNodeStructPositionFromRelative(nodeS);
+                    iMutex.lock();
+                    mars::interfaces::NodeData da = editedNode->getData()->getSNode();
+                    da.rot = nodeS->rot;
+                    editedNode->getData()->setRelativePosition(da);
+                }
+                rotation_point = editedNode->getData()->getPosition();
+                //if(nodeS->relative_id && !load_actual)
+                //setNodeStructPositionFromRelative(nodeS);
+                q = editedNode->getData()->setRotation(nodeS->rot, 0);
 
-  //         //(*iter)->rotateAtPoint(&rotation_point, &nodeS->rot, false);
+                //(*iter)->rotateAtPoint(&rotation_point, &nodeS->rot, false);
 
-  //         NodeMap nodes = simNodes;
-  //         NodeMap nodesj = simNodes;
-  //         std::vector<mars::sim::SimJoint*> jointsj = control->joints->getSimJoints();
-  //         nodes.erase(nodes.find(editedNode->getID()));
-  //         rotateRelativeNodes(*editedNode, &nodes, rotation_point, q);
+                NodeMap nodes = simNodes;
+                NodeMap nodesj = simNodes;
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> jointsj = control->joints->getSimJoints();
+                nodes.erase(nodes.find(editedNode->getData()->getID()));
+                rotateRelativeNodes(*(editedNode->getData()), &nodes, rotation_point, q);
 
-  //         if(sNode.groupID != 0) {
-  //           for(it=simNodes.begin(); it!=simNodes.end(); ++it) {
-  //             if(it->second->getGroupID() == sNode.groupID) {
-  //               control->joints->reattacheJoints(it->second->getID());
-  //             }
-  //           }
-  //         }
-  //         else {
-  //           control->joints->reattacheJoints(nodeS->index);
-  //         }
+                if(sNode.groupID != 0) {
+                    for(it=simNodes.begin(); it!=simNodes.end(); ++it) {
+                        if(it->second->getData()->getGroupID() == sNode.groupID) {
+                            control->joints->reattacheJoints(it->second->getData()->getID());
+                        }
+                    }
+                }
+                else {
+                    control->joints->reattacheJoints(nodeS->index);
+                }
 
-  //         iMutex.unlock(); // is this desired???
-  //         resetRelativeJoints(*editedNode, &nodesj, &jointsj);
-  //         iMutex.lock();
-  //          }
-  //       update_all_nodes = true;
+                iMutex.unlock(); // is this desired???
+                resetRelativeJoints(*(editedNode->getData()), &nodesj, &jointsj);
+                iMutex.lock();
+            }
+            update_all_nodes = true;
         }
         if ((changes & mars::interfaces::EDIT_NODE_SIZE) || (changes & mars::interfaces::EDIT_NODE_TYPE) || (changes & mars::interfaces::EDIT_NODE_CONTACT) ||
             (changes & mars::interfaces::EDIT_NODE_MASS) || (changes & mars::interfaces::EDIT_NODE_NAME) ||
@@ -979,7 +972,7 @@ namespace mars {
 
     void EnvireNodeManager::resetRelativeJoints(const mars::sim::SimNode &node,
                                           NodeMap *nodes,
-                                          std::vector<mars::sim::SimJoint*> *joints,
+                                          std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                           const mars::utils::Quaternion *rotate) {
       printf("not implemented : %s\n", __PRETTY_FUNCTION__);
   //     NodeMap::iterator iter;
@@ -1105,14 +1098,13 @@ namespace mars {
     }
 
     void EnvireNodeManager::moveNodeRecursive(mars::interfaces::NodeId id, const mars::utils::Vector &offset,
-                                        std::vector<mars::sim::SimJoint*> *joints,
+                                        std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                         std::vector<int> *gids,
                                         NodeMap *nodes) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     MoveParams params;
-  //     params.offset = offset;
-  //     recursiveHelper(id, &params, joints, gids, nodes, &applyMove);
-     }
+        MoveParams params;
+        params.offset = offset;
+        recursiveHelper(id, &params, joints, gids, nodes, &applyMove);
+    }
 
      void EnvireNodeManager::rotateNode(mars::interfaces::NodeId id, mars::utils::Vector pivot, mars::utils::Quaternion q,
                                   unsigned long excludeJointId, bool includeConnected) {

@@ -205,7 +205,7 @@ namespace mars {
                                  NodeMap *nodes,
                                  void (*applyFunc)(mars::sim::SimNode *node, const Params *params));
             void moveNodeRecursive(mars::interfaces::NodeId id, const mars::utils::Vector &offset,
-                                   std::vector<mars::sim::SimJoint*> *joints,
+                                   std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                    std::vector<int> *gids,
                                    NodeMap *nodes);
             void rotateNodeRecursive(mars::interfaces::NodeId id,
@@ -228,7 +228,7 @@ namespace mars {
                                     const mars::utils::Quaternion *rotate = 0);
             void resetRelativeJoints(const mars::sim::SimNode &node,
                                      NodeMap *nodes,
-                                     std::vector<mars::sim::SimJoint*> *joints,
+                                     std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                      const mars::utils::Quaternion *rotate = 0);
             void setNodeStructPositionFromRelative(mars::interfaces::NodeData *node) const;
             void clearRelativePosition(mars::interfaces::NodeId id, bool lock);
