@@ -792,48 +792,40 @@ namespace mars {
 
 
    const mars::utils::Vector EnvireNodeManager::getLinearVelocity(mars::interfaces::NodeId id) const {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-          return mars::utils::Vector();
-  //     mars::utils::Vector vel(0.0,0.0,0.0);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       vel = iter->second->getLinearVelocity();
-  //     return vel;
+        mars::utils::Vector vel(0.0,0.0,0.0);
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+        vel = iter->second->getData()->getLinearVelocity();
+        return vel;
     }
 
-  const mars::utils::Vector EnvireNodeManager::getAngularVelocity(mars::interfaces::NodeId id) const {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-          return mars::utils::Vector();
-  //     mars::utils::Vector avel(0.0,0.0,0.0);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       avel = iter->second->getAngularVelocity();
-  //     return avel;
+    const mars::utils::Vector EnvireNodeManager::getAngularVelocity(mars::interfaces::NodeId id) const {
+        mars::utils::Vector avel(0.0,0.0,0.0);
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            avel = iter->second->getData()->getAngularVelocity();
+        return avel;
     }
 
 
-   const mars::utils::Vector EnvireNodeManager::getLinearAcceleration(mars::interfaces::NodeId id) const {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-          return mars::utils::Vector();
-  //     mars::utils::Vector acc(0.0,0.0,0.0);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       acc = iter->second->getLinearAcceleration();
-  //     return acc;
-   }
+    const mars::utils::Vector EnvireNodeManager::getLinearAcceleration(mars::interfaces::NodeId id) const {
+        mars::utils::Vector acc(0.0,0.0,0.0);
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            acc = iter->second->getData()->getLinearAcceleration();
+        return acc;
+    }
 
    const mars::utils::Vector EnvireNodeManager::getAngularAcceleration(mars::interfaces::NodeId id) const {
-          printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-          return mars::utils::Vector();
-  //     mars::utils::Vector aacc(0.0,0.0,0.0);
-  //     mars::utils::MutexLocker locker(&iMutex);
-  //     NodeMap::const_iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end())
-  //       aacc = iter->second->getAngularAcceleration();
-  //     return aacc;
+        mars::utils::Vector aacc(0.0,0.0,0.0);
+        mars::utils::MutexLocker locker(&iMutex);
+        NodeMap::const_iterator iter = simNodes.find(id);
+        if (iter != simNodes.end())
+            aacc = iter->second->getData()->getAngularAcceleration();
+        return aacc;
     }
 
 
@@ -974,38 +966,37 @@ namespace mars {
                                           NodeMap *nodes,
                                           std::vector<std::shared_ptr<mars::sim::SimJoint>> *joints,
                                           const mars::utils::Quaternion *rotate) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     NodeMap::iterator iter;
-  //     std::vector<mars::sim::SimJoint*>::iterator jter;
-  //     std::vector<mars::sim::SimJoint*>::iterator jter2;
-  //     mars::sim::SimNode* nextNode;
+        NodeMap::iterator iter;
+        std::vector<std::shared_ptr<mars::sim::SimJoint>>::iterator jter;
+        std::vector<std::shared_ptr<mars::sim::SimJoint>>::iterator jter2;
+        std::shared_ptr<mars::sim::SimNode> nextNode;
 
-  //     iMutex.lock();
-  //     for (iter = nodes->begin(); iter != nodes->end(); iter++) {
-  //       if (iter->second->getSNode().relative_id == node.getID()) {
-  //         nextNode = iter->second;
-  //         for (jter = joints->begin(); jter != joints->end();) {
-  //           if ((*jter)->getSJoint().nodeIndex1 == iter->first ||
-  //               (*jter)->getSJoint().nodeIndex2 == iter->first) {
-  //             if(rotate) (*jter)->rotateAxis(*rotate);
-  //             (*jter)->reattachJoint();
-  //             jter2 = jter;
-  //             if(jter != joints->begin()) jter--;
-  //             else jter = joints->begin();
-  //             joints->erase(jter2);
-  //           }
-  //           else jter++;
-  //         }
+        iMutex.lock();
+        for (iter = nodes->begin(); iter != nodes->end(); iter++) {
+            if (iter->second->getData()->getSNode().relative_id == node.getID()) {
+            nextNode = iter->second->getData();
+            for (jter = joints->begin(); jter != joints->end();) {
+                if ((*jter)->getSJoint().nodeIndex1 == iter->first ||
+                    (*jter)->getSJoint().nodeIndex2 == iter->first) {
+                if(rotate) (*jter)->rotateAxis(*rotate);
+                (*jter)->reattachJoint();
+                jter2 = jter;
+                if(jter != joints->begin()) jter--;
+                else jter = joints->begin();
+                joints->erase(jter2);
+                }
+                else jter++;
+            }
 
-  //         nodes->erase(iter);
-  //         iMutex.unlock();
-  //         resetRelativeJoints(node, nodes, joints, rotate);
-  //         resetRelativeJoints(*nextNode, nodes, joints, rotate);
-  //         iMutex.lock();
-  //         break;
-  //       }
-  //     }
-  //     iMutex.unlock();
+            nodes->erase(iter);
+            iMutex.unlock();
+            resetRelativeJoints(node, nodes, joints, rotate);
+            resetRelativeJoints(*nextNode, nodes, joints, rotate);
+            iMutex.lock();
+            break;
+            }
+        }
+        iMutex.unlock();
      }
 
 
@@ -1084,12 +1075,11 @@ namespace mars {
       }
      }
 
-     void EnvireNodeManager::applyMove(mars::sim::SimNode *node, const Params *params)
-     {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     const mars::utils::Vector offset = dynamic_cast<const MoveParams*>(params)->offset;
-  //     node->setPositionOffset(offset);
-     }
+    void EnvireNodeManager::applyMove(mars::sim::SimNode *node, const Params *params)
+    {
+        const mars::utils::Vector offset = dynamic_cast<const MoveParams*>(params)->offset;
+        node->setPositionOffset(offset);
+    }
 
     void EnvireNodeManager::applyRotation(mars::sim::SimNode *node, const Params *params)
     {
@@ -1893,41 +1883,39 @@ namespace mars {
 
      void EnvireNodeManager::moveRelativeNodes(const mars::sim::SimNode &node, NodeMap *nodes,
                                          mars::utils::Vector v) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     NodeMap::iterator iter;
-  //     mars::sim::SimNode* nextNode;
+      NodeMap::iterator iter;
+      std::shared_ptr<mars::sim::SimNode> nextNode;
 
-  //     // TODO: doesn't this function need locking? no
-  //     for (iter = nodes->begin(); iter != nodes->end(); iter++) {
-  //       if (iter->second->getParentID() == node.getID()) {
-  //         nextNode = iter->second;
-  //         mars::utils::Vector newPos = nextNode->getPosition() + v;
-  //         nextNode->setPosition(newPos, false);
-  //         nodes->erase(iter);
-  //         moveRelativeNodes(node, nodes, v);
-  //         moveRelativeNodes(*nextNode, nodes, v);
-  //         break;
-  //       }
-  //     }
+      // TODO: doesn't this function need locking? no
+      for (iter = nodes->begin(); iter != nodes->end(); iter++) {
+        if (iter->second->getData()->getParentID() == node.getID()) {
+          nextNode = iter->second->getData();
+          mars::utils::Vector newPos = nextNode->getPosition() + v;
+          nextNode->setPosition(newPos, false);
+          nodes->erase(iter);
+          moveRelativeNodes(node, nodes, v);
+          moveRelativeNodes(*nextNode, nodes, v);
+          break;
+        }
+      }
      }
 
      void EnvireNodeManager::rotateRelativeNodes(const mars::sim::SimNode &node, NodeMap *nodes,
                                            mars::utils::Vector pivot, mars::utils::Quaternion rot) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-  //     NodeMap::iterator iter;
-  //     mars::sim::SimNode* nextNode;
+        NodeMap::iterator iter;
+        std::shared_ptr<mars::sim::SimNode> nextNode;
 
-  //     // TODO: doesn't this function need locking? no
-  //     for (iter = nodes->begin(); iter != nodes->end(); iter++) {
-  //       if (iter->second->getParentID() == node.getID()) {
-  //         nextNode = iter->second;
-  //         nextNode->rotateAtPoint(pivot, rot, false);
-  //         nodes->erase(iter);
-  //         rotateRelativeNodes(node, nodes, pivot, rot);
-  //         rotateRelativeNodes(*nextNode, nodes, pivot, rot);
-  //         break;
-  //       }
-  //     }
+        // TODO: doesn't this function need locking? no
+        for (iter = nodes->begin(); iter != nodes->end(); iter++) {
+            if (iter->second->getData()->getParentID() == node.getID()) {
+            nextNode = iter->second->getData();
+            nextNode->rotateAtPoint(pivot, rot, false);
+            nodes->erase(iter);
+            rotateRelativeNodes(node, nodes, pivot, rot);
+            rotateRelativeNodes(*nextNode, nodes, pivot, rot);
+            break;
+            }
+        }
      }
 
      void EnvireNodeManager::printNodeMasses(bool onlysum) {

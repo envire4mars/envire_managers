@@ -371,14 +371,12 @@ namespace mars {
       //   iter->second->setEffort(torque, 0);
     }
 
-
     void EnvireJointManager::changeStepSize(void) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-      // map<unsigned long, SimJoint*>::iterator iter;
-      // MutexLocker locker(&iMutex);
-      // for (iter = simJoints.begin(); iter != simJoints.end(); iter++) {
-      //   iter->second->updateStepSize();
-      // }
+      JointMap::iterator iter;
+      mars::utils::MutexLocker locker(&iMutex);
+      for (iter = simJoints.begin(); iter != simJoints.end(); iter++) {
+        iter->second->getData()->updateStepSize();
+      }
     }
 
     void EnvireJointManager::setReloadAnchor(unsigned long id, const mars::utils::Vector &anchor) {
