@@ -1883,21 +1883,21 @@ namespace mars {
 
      void EnvireNodeManager::moveRelativeNodes(const mars::sim::SimNode &node, NodeMap *nodes,
                                          mars::utils::Vector v) {
-      NodeMap::iterator iter;
-      std::shared_ptr<mars::sim::SimNode> nextNode;
+        NodeMap::iterator iter;
+        std::shared_ptr<mars::sim::SimNode> nextNode;
 
-      // TODO: doesn't this function need locking? no
-      for (iter = nodes->begin(); iter != nodes->end(); iter++) {
-        if (iter->second->getData()->getParentID() == node.getID()) {
-          nextNode = iter->second->getData();
-          mars::utils::Vector newPos = nextNode->getPosition() + v;
-          nextNode->setPosition(newPos, false);
-          nodes->erase(iter);
-          moveRelativeNodes(node, nodes, v);
-          moveRelativeNodes(*nextNode, nodes, v);
-          break;
+        // TODO: doesn't this function need locking? no
+        for (iter = nodes->begin(); iter != nodes->end(); iter++) {
+            if (iter->second->getData()->getParentID() == node.getID()) {
+                nextNode = iter->second->getData();
+                mars::utils::Vector newPos = nextNode->getPosition() + v;
+                nextNode->setPosition(newPos, false);
+                nodes->erase(iter);
+                moveRelativeNodes(node, nodes, v);
+                moveRelativeNodes(*nextNode, nodes, v);
+                break;
+            }
         }
-      }
      }
 
      void EnvireNodeManager::rotateRelativeNodes(const mars::sim::SimNode &node, NodeMap *nodes,
