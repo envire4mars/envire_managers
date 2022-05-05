@@ -191,8 +191,6 @@ namespace mars {
 
             mars::interfaces::ControlCenter *control;
 
-            envire::core::TreeView graphTreeView;
-
             std::list<mars::interfaces::NodeData>::iterator getReloadNode(mars::interfaces::NodeId id);
 
             // interfaces::NodeInterface* getNodeInterface(NodeId node_id);

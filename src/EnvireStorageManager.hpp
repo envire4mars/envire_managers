@@ -61,14 +61,22 @@ namespace mars {
         EnvireStorageManager() {
           graph = std::shared_ptr<envire::core::EnvireGraph> (new envire::core::EnvireGraph());
           graph->addFrame(SIM_CENTER_FRAME_NAME);
+          // keep updating tree
+          graphTreeView = std::shared_ptr<envire::core::TreeView>(new envire::core::TreeView());
+          graph->getTree(SIM_CENTER_FRAME_NAME, true, graphTreeView.get());          
         }
 
         std::shared_ptr<envire::core::EnvireGraph> getGraph() {
           return graph;
         }
 
+        std::shared_ptr<envire::core::TreeView> getGraphTreeView() {
+          return graphTreeView;
+        }
+
       private:
         std::shared_ptr<envire::core::EnvireGraph> graph;
+        std::shared_ptr<envire::core::TreeView> graphTreeView;
 
       }; // end of class definition EnvireStorageManager
 

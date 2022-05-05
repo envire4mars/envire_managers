@@ -82,9 +82,6 @@ namespace mars {
         mars::interfaces::GraphicsUpdateInterface *gui = static_cast<mars::interfaces::GraphicsUpdateInterface*>(this);
         control->graphics->addGraphicsUpdateInterface(gui);
       }
-
-        // keep updating tree
-      EnvireStorageManager::instance()->getGraph()->getTree(SIM_CENTER_FRAME_NAME, true, &graphTreeView);
     }
 
 
@@ -1296,10 +1293,11 @@ namespace mars {
         mars::utils::MutexLocker locker(&iMutex);
 
         // FIX: update Graph
-        if(graphTreeView.crossEdges.size() > 0)
+        std::shared_ptr<envire::core::TreeView> graphTreeView = EnvireStorageManager::instance()->getGraphTreeView();
+        if(graphTreeView->crossEdges.size() > 0)
         {
-            const envire::core::GraphTraits::vertex_descriptor source = EnvireStorageManager::instance()->getGraph()->getSourceVertex(graphTreeView.crossEdges[0].edge);
-            const envire::core::GraphTraits::vertex_descriptor target = EnvireStorageManager::instance()->getGraph()->getTargetVertex(graphTreeView.crossEdges[0].edge);
+            const envire::core::GraphTraits::vertex_descriptor source = EnvireStorageManager::instance()->getGraph()->getSourceVertex(graphTreeView->crossEdges[0].edge);
+            const envire::core::GraphTraits::vertex_descriptor target = EnvireStorageManager::instance()->getGraph()->getTargetVertex(graphTreeView->crossEdges[0].edge);
             const envire::core::FrameId sourceId = EnvireStorageManager::instance()->getGraph()->getFrameId(source);
             const envire::core::FrameId targetId = EnvireStorageManager::instance()->getGraph()->getFrameId(target);
             const std::string msg = "Loop in tree detected: " + sourceId + " --> " + targetId +
@@ -1317,9 +1315,10 @@ namespace mars {
                                                 const base::TransformWithCovariance& frameToRoot,
                                                 mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only)
     {
-        if(graphTreeView.tree.find(vertex) != graphTreeView.tree.end())
+        std::shared_ptr<envire::core::TreeView> graphTreeView = EnvireStorageManager::instance()->getGraphTreeView();
+        if(graphTreeView->tree.find(vertex) != graphTreeView->tree.end())
         {
-            const std::unordered_set<envire::core::GraphTraits::vertex_descriptor>& children = graphTreeView.tree[vertex].children;
+            const std::unordered_set<envire::core::GraphTraits::vertex_descriptor>& children = graphTreeView->tree[vertex].children;
             for(const envire::core::GraphTraits::vertex_descriptor child : children)
             {
                 updatePositions(vertex, child, frameToRoot, calc_ms, physics_thread, dynamic_only);
