@@ -54,6 +54,8 @@ using namespace envire::core;
 EnvireManager::EnvireManager(lib_manager::LibManager *theManager)
 : MarsPluginTemplate(theManager, "EnvireManager") {
 
+    control->storage = EnvireStorageManager::instance().get();
+    LOG_DEBUG("[EnvireManager] set EnvireStorageManager as control->storage");
     control->nodes = new EnvireNodeManager(control, theManager);
     LOG_DEBUG("[EnvireManager] set EnvireNodeManager as control->nodes");
     control->motors = new EnvireMotorManager(control);

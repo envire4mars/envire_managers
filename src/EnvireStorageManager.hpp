@@ -37,11 +37,13 @@
 
 #include <envire_core/graph/EnvireGraph.hpp>
 
+#include <mars/interfaces/sim/StorageManagerInterface.h>
+
 namespace mars {
   namespace plugins {
     namespace envire_managers {
 
-      class EnvireStorageManager
+      class EnvireStorageManager : public interfaces::StorageManagerInterface
       {
 
       public:
