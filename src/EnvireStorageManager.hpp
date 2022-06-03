@@ -30,20 +30,21 @@
 #define MARS_PLUGINS_ENVIRE_STORAGE_MANAGER_H
 
 #ifdef _PRINT_HEADER_
-  #warning "EnvireStorageManager.hpp"
+#warning "EnvireStorageManager.hpp"
 #endif
 
 #include "EnvireDefs.hpp"
 
 #include <envire_core/graph/EnvireGraph.hpp>
 
-#include <mars/interfaces/sim/StorageManagerInterface.h>
+namespace mars
+{
+  namespace plugins
+  {
+    namespace envire_managers
+    {
 
-namespace mars {
-  namespace plugins {
-    namespace envire_managers {
-
-      class EnvireStorageManager : public interfaces::StorageManagerInterface
+      class EnvireStorageManager
       {
 
       public:
