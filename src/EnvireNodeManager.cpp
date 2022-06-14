@@ -295,6 +295,26 @@ namespace mars {
             SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
             EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
 
+            // add relative id to node
+            const envire::core::GraphTraits::vertex_descriptor vertex = EnvireStorageManager::instance()->getGraph()->vertex(frameID);
+            envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;            
+
+            if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
+            {
+                // Update simulation node
+                using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
+                IteratorSimNode begin_sim, end_sim;
+                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(parent_vertex);
+                for (;begin_sim!=end_sim; begin_sim++)
+                {
+                    const std::shared_ptr<mars::sim::SimNode> sn = begin_sim->getData();
+                    if (sn->getSNode().simNodeType == mars::interfaces::SimNodeType::FRAME)
+                    {
+                        newNode->setRelativeID(sn->getID());
+                    }
+                }                
+            }
+
             // add node into the node map
             simNodes[nodeS->index] = newNodeItemPtr;
             //if (nodeS->movable)
@@ -324,6 +344,26 @@ namespace mars {
             #ifdef DEBUG_ENVIRE_MANAGERS
                 LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
             #endif
+
+            // add relative id to node
+            const envire::core::GraphTraits::vertex_descriptor vertex = EnvireStorageManager::instance()->getGraph()->vertex(frameID);
+            envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;            
+
+            if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
+            {
+                // Update simulation node
+                using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
+                IteratorSimNode begin_sim, end_sim;
+                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(parent_vertex);
+                for (;begin_sim!=end_sim; begin_sim++)
+                {
+                    const std::shared_ptr<mars::sim::SimNode> sn = begin_sim->getData();
+                    if (sn->getSNode().simNodeType == mars::interfaces::SimNodeType::FRAME)
+                    {
+                        newNode->setRelativeID(sn->getID());
+                    }
+                }                
+            }
 
             simNodes[nodeS->index] = newNodeItemPtr;
             //if (nodeS->movable)
