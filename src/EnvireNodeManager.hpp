@@ -131,6 +131,7 @@ namespace mars {
             virtual void scaleReloadNodes(mars::interfaces::sReal x, mars::interfaces::sReal y, mars::interfaces::sReal z);
             virtual void getNodeMass(mars::interfaces::NodeId id, mars::interfaces::sReal *mass, mars::interfaces::sReal *inertia = 0) const;
             virtual void setAngularDamping(mars::interfaces::NodeId id, mars::interfaces::sReal damping);
+            virtual void setLinearDamping(interfaces::NodeId id, interfaces::sReal damping);
             virtual void addRotation(mars::interfaces::NodeId id, const mars::utils::Quaternion &q);
             virtual void setReloadQuaternion(mars::interfaces::NodeId id, const mars::utils::Quaternion &q);
             virtual void preGraphicsUpdate(void);

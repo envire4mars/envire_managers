@@ -1618,6 +1618,14 @@ namespace mars {
   //       iter->second->setAngularDamping(damping);
      }
 
+    void EnvireNodeManager::setLinearDamping(mars::interfaces::NodeId id, mars::interfaces::sReal damping) {
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+    //   MutexLocker locker(&iMutex);
+    //   NodeMap::iterator iter = simNodes.find(id);
+    //   if (iter != simNodes.end())
+    //     iter->second->setLinearDamping(damping);
+    }     
+
 
      void EnvireNodeManager::addRotation(mars::interfaces::NodeId id, const mars::utils::Quaternion &q) {
       printf("not implemented : %s\n", __PRETTY_FUNCTION__);
