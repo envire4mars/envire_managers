@@ -39,9 +39,12 @@
 #include <base-logging/Logging.hpp>
 
 #include "EnvireStorageManager.hpp"
-#include "EnvireMotorManager.hpp"
 #include "EnvireNodeManager.hpp"
 #include "EnvireJointManager.hpp"
+#include "EnvireMotorManager.hpp"
+#include "EnvireSensorManager.hpp"
+#include "EnvireEntityManager.hpp"
+
 
 // Comment-in the following line in order to get debug traces
 //#define DEBUG
@@ -56,10 +59,14 @@ EnvireManager::EnvireManager(lib_manager::LibManager *theManager)
 
     control->nodes = new EnvireNodeManager(control, theManager);
     LOG_DEBUG("[EnvireManager] set EnvireNodeManager as control->nodes");
+    control->joints = new EnvireJointManager(control);
+    LOG_DEBUG("[EnvireManager] set EnvireJointManager as control->joints");    
     control->motors = new EnvireMotorManager(control);
     LOG_DEBUG("[EnvireManager] set EnvireMotorManager as control->motors");
-    control->joints = new EnvireJointManager(control);
-    LOG_DEBUG("[EnvireManager] set EnvireJointManager as control->joints");
+    control->sensors = new EnvireSensorManager(control);
+    LOG_DEBUG("[EnvireManager] set EnvireSensorManager as control->sensors"); 
+    control->entities = new EnvireEntityManager(control);
+    LOG_DEBUG("[EnvireManager] set EnvireEntityManager as control->entities");
 }
 
 void EnvireManager::init() {
