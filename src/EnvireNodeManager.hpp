@@ -170,6 +170,7 @@ namespace mars {
                                     unsigned long excludeJointId, bool includeConnected = true);
             virtual void positionNode(mars::interfaces::NodeId id, mars::utils::Vector pos,
                                       unsigned long excludeJointId);
+            virtual void setSingleNodePose(mars::interfaces::NodeId id, mars::utils::Vector pos, mars::utils::Quaternion q);                                      
             virtual unsigned long getMaxGroupID() { return maxGroupID; }
             virtual void edit(mars::interfaces::NodeId id, const std::string &key,
                               const std::string &value);

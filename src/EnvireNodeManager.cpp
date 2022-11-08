@@ -1206,6 +1206,21 @@ namespace mars {
   //     updateDynamicNodes(0, false);
      }
 
+    void EnvireNodeManager::setSingleNodePose(mars::interfaces::NodeId id, mars::utils::Vector pos, mars::utils::Quaternion q) {
+        printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+    //   MutexLocker locker(&iMutex);
+    //   NodeMap::iterator iter = simNodes.find(id);
+    //   if(iter == simNodes.end()) {
+    //     iMutex.unlock();
+    //     LOG_ERROR("NodeManager::setSingleNodePose: node id not found!");
+    //     return;
+    //   }
+    //   std::shared_ptr<SimNode> editedNode = iter->second;
+    //   editedNode->setPosition(pos, false);
+    //   editedNode->setRotation(q, false);
+    //   nodesToUpdate[id] = iter->second;
+    }     
+
      void EnvireNodeManager::rotateNodeRecursive(mars::interfaces::NodeId id,
                                            const mars::utils::Vector &rotation_point,
                                            const mars::utils::Quaternion &rotation,
