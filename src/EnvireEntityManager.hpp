@@ -43,11 +43,21 @@
 #include <mars/utils/Mutex.h>
 #include <configmaps/ConfigData.h>
 
+#include <envire_core/graph/EnvireGraph.hpp>
+#include <envire_core/items/Item.hpp>
+
 namespace mars {
   namespace plugins {
     namespace envire_managers {
 
     class mars::sim::SimEntity;
+
+    typedef std::shared_ptr<mars::sim::SimEntity> SimEntityPtr;
+    typedef envire::core::Item<SimEntityPtr> SimEntityItem;
+    typedef SimEntityItem::Ptr SimEntityItemPtr;
+
+    typedef std::map<unsigned long, SimEntityItemPtr> EntityMap;
+    typedef EntityMap::iterator EntityMapItr;
 
     /*get notifications
      * about selection changes*/
@@ -58,7 +68,19 @@ namespace mars {
       /**creates a new entity with the given name and returns its id*/
       virtual unsigned long addEntity(const std::string &name);
 
-      virtual unsigned long addEntity(mars::sim::SimEntity* entity);
+      /**
+       * @brief Add entity into the graph. The graph frame,
+       * where the entity is stored, is given by the frame_id
+       * in the config map of the entity.
+       * 
+       * Note for developer: The graph item of the entity will be stored 
+       * in the private member entities, to get quick access to all entities. 
+       * So we don't need to parse the whole graph to find all entities.
+       * 
+       * @param entity 
+       * @return unsigned long - unique id of the added entity
+       */
+      virtual unsigned long addEntity(SimEntityPtr entity);
 
       virtual void removeEntity(const std::string &name, bool completeAssembly=false);
 
@@ -95,6 +117,13 @@ namespace mars {
       /**returns the entities that contain the given name string
        */
       virtual std::vector<mars::sim::SimEntity*> getEntities(const std::string &name);
+
+      virtual void getListEntities(std::vector<mars::interfaces::core_objects_exchange>* entityList);
+
+      /**
+       * @brief return all entities
+       */
+      virtual std::vector<std::shared_ptr<mars::sim::SimEntity>> getEntities();
 
       /**returns the entities that belong to the assembly with the given name
        */
@@ -147,7 +176,7 @@ namespace mars {
       mars::interfaces::ControlCenter *control;
       /**the id assigned to the next created entity; use getNextId function*/
       unsigned long next_entity_id;
-      std::map<unsigned long, mars::sim::SimEntity*> entities;
+      EntityMap entities;
 
       /**returns the id to be assigned to the next entity*/
       unsigned long getNextId() {
