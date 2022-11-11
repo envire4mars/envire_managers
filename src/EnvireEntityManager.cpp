@@ -26,7 +26,7 @@
 #include <mars/utils/MutexLocker.h>
 #include <mars/utils/misc.h>
 
-#include <mars/plugins/envire_managers/EnvireStorageManager.hpp>
+#include "EnvireStorageManager.hpp"
 
 #include <iostream>
 #include <string>
