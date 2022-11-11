@@ -15,6 +15,7 @@ set(HEADERS
 	src/EnvireSensorManager.hpp		
 	src/EnvireEntityManager.hpp	
 	src/EnvireStorageManager.hpp
+	src/EnvireStorageManager.hpp
   src/EnvireManager.hpp
 	src/EnvireDefs.hpp
   PARENT_SCOPE
