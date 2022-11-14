@@ -255,124 +255,63 @@ namespace mars {
         }
 
         // create a node object
-        std::shared_ptr<mars::sim::SimNode> newNode(new mars::sim::SimNode(control, *nodeS));
-
-        // ------ PHYSICAL NODE
-        if(nodeS->noPhysical == false) {
-            #ifdef DEBUG_ENVIRE_MANAGERS
-                LOG_DEBUG(("EnvireNodeManager::addNode: physical: " + nodeS->name).c_str());
-            #endif
-            // create an interface object to the physics
-            std::shared_ptr<mars::interfaces::NodeInterface> newNodeInterface = mars::sim::PhysicsMapper::newNodePhysics(control->sim->getPhysics());
-
-            // can not create physics
-            if (!newNodeInterface->createNode(nodeS)) {
-                // if no node was created in physics
-                // delete the objects
-                newNode.reset();
-                newNodeInterface.reset();
-                // and return false
-                LOG_ERROR("EnvireNodeManager::addNode: No node was created in physics.");
-                return INVALID_ID;
-            }
-
-            // put all data to the correct place
-            //      newNode->setSNode(*nodeS);
-            newNode->setInterface(newNodeInterface);
-
-            // if frame is not in the graph, create one
-            if (EnvireStorageManager::instance()->getGraph()->containsFrame(frameID) == false)
-            {
-                std::cout << "[EnvireNodeManager::addNode] create new transformation between center and " + frameID << std::endl;
-                LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + frameID).c_str());
-                envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
-                nodeTransf.time = base::Time::now();
-                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, frameID, nodeTransf);
-            }
-
-            iMutex.lock();
-            // add node into the graph
-            SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
-            EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
-
-            // add relative id to node
-            const envire::core::GraphTraits::vertex_descriptor vertex = EnvireStorageManager::instance()->getGraph()->vertex(frameID);
-            envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;            
-
-            if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
-            {
-                // Update simulation node
-                using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
-                IteratorSimNode begin_sim, end_sim;
-                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(parent_vertex);
-                for (;begin_sim!=end_sim; begin_sim++)
-                {
-                    const std::shared_ptr<mars::sim::SimNode> sn = begin_sim->getData();
-                    if (sn->getSNode().simNodeType == mars::interfaces::SimNodeType::FRAME)
-                    {
-                        newNode->setRelativeID(sn->getID());
-                    }
-                }                
-            }
-
-            // add node into the node map
-            simNodes[nodeS->index] = newNodeItemPtr;
-            //if (nodeS->movable)
-            //    simNodesDyn[nodeS->index] = newNodeItemPtr;
-            iMutex.unlock();
-
-            control->sim->sceneHasChanged(false);
-            mars::interfaces::NodeId id;
-        } else {  // ------ NONE PHYSICAL NODE
-            #ifdef DEBUG_ENVIRE_MANAGERS
-                LOG_DEBUG(("EnvireNodeManager::addNode: nonPhysical: " + nodeS->name).c_str());
-            #endif
-
-            iMutex.lock();
-            // if frame is not in the graph, create one
-            if (EnvireStorageManager::instance()->getGraph()->containsFrame(frameID) == false)
-            {
-                LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + frameID).c_str());
-                envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
-                nodeTransf.time = base::Time::now();
-                EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, frameID, nodeTransf);
-            }
-
-            // add node into the graph
-            SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
-            EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
-            #ifdef DEBUG_ENVIRE_MANAGERS
-                LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
-            #endif
-
-            // add relative id to node
-            const envire::core::GraphTraits::vertex_descriptor vertex = EnvireStorageManager::instance()->getGraph()->vertex(frameID);
-            envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;            
-
-            if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
-            {
-                // Update simulation node
-                using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
-                IteratorSimNode begin_sim, end_sim;
-                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(parent_vertex);
-                for (;begin_sim!=end_sim; begin_sim++)
-                {
-                    const std::shared_ptr<mars::sim::SimNode> sn = begin_sim->getData();
-                    if (sn->getSNode().simNodeType == mars::interfaces::SimNodeType::FRAME)
-                    {
-                        newNode->setRelativeID(sn->getID());
-                    }
-                }                
-            }
-
-            simNodes[nodeS->index] = newNodeItemPtr;
-            //if (nodeS->movable)
-              //simNodesDyn[nodeS->index] = newNodeItemPtr;
-
-            iMutex.unlock();
-
-            control->sim->sceneHasChanged(false);
+        std::shared_ptr<mars::sim::SimNode> newNode;
+        try {
+            newNode = std::make_shared<mars::sim::SimNode>(control, *nodeS);
+        } catch (const std::exception& e){
+            std::cout << e.what() << std::endl;
+            return INVALID_ID;
         }
+
+        #ifdef DEBUG_ENVIRE_MANAGERS
+            LOG_DEBUG(("EnvireNodeManager::addNode: nonPhysical: " + nodeS->name).c_str());
+        #endif
+
+        iMutex.lock();
+        // if frame is not in the graph, create one
+        if (EnvireStorageManager::instance()->getGraph()->containsFrame(frameID) == false)
+        {
+            LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + frameID).c_str());
+            envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
+            nodeTransf.time = base::Time::now();
+            EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, frameID, nodeTransf);
+        }
+
+        // add node into the graph
+        SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
+        EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
+        #ifdef DEBUG_ENVIRE_MANAGERS
+            LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
+        #endif
+
+        // add relative id to node
+        const envire::core::GraphTraits::vertex_descriptor vertex = EnvireStorageManager::instance()->getGraph()->vertex(frameID);
+        envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;            
+
+        if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
+        {
+            // Update simulation node
+            using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
+            IteratorSimNode begin_sim, end_sim;
+            boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(parent_vertex);
+            for (;begin_sim!=end_sim; begin_sim++)
+            {
+                const std::shared_ptr<mars::sim::SimNode> sn = begin_sim->getData();
+                if (sn->getSNode().simNodeType == mars::interfaces::SimNodeType::FRAME)
+                {
+                    newNode->setRelativeID(sn->getID());
+                }
+            }                
+        }
+
+        simNodes[nodeS->index] = newNodeItemPtr;
+        //if (nodeS->movable)
+            //simNodesDyn[nodeS->index] = newNodeItemPtr;
+
+        iMutex.unlock();
+
+        control->sim->sceneHasChanged(false);
+        
         return nodeS->index;
     }
 
