@@ -561,13 +561,15 @@ namespace mars {
 
         // we have to update all nodes, since static nodes may be changed inside this function
         // so we have to keep graph up to date with new node data pose
-        if (editedNode->getData()->isMovable()) {
-            updateNodes(0, false, true);   // update only dynamic nodes
-        }
-        else {
-            updateNodes(0, false, false);    // update all nodes, also static ones
-        }
-        /* updateDynamicNodes(0, false);*/
+        //if (editedNode->getData()->isMovable()) {
+        //    std::cout << "update dynamic" << std::endl;
+        //    updateNodes(0, false, true);   // update only dynamic nodes
+        //}
+        //else {
+        //    std::cout << "update static" << std::endl;
+        //    updateNodes(0, false, false);    // update all nodes, also static ones
+        //}
+        updateDynamicNodes(0, false);
    }
 
     void EnvireNodeManager::changeGroup(mars::interfaces::NodeId id, int group) {
