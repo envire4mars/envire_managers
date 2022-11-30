@@ -47,10 +47,11 @@
 #include <envire_core/items/Item.hpp>
 
 namespace mars {
+  namespace sim {
+    class SimEntity;
+  };
   namespace plugins {
     namespace envire_managers {
-
-    class mars::sim::SimEntity;
 
     typedef std::shared_ptr<mars::sim::SimEntity> SimEntityPtr;
     typedef envire::core::Item<SimEntityPtr> SimEntityItem;
