@@ -34,6 +34,9 @@
 #endif
 
 #include "EnvireDefs.hpp"
+
+// TODO: simplify usage EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem> => EnvireStorageManager::instance()->getItems<T>
+// TODO: save instance to control storage (call control->storage->getItems<T>)
 namespace mars
 {
   namespace plugins

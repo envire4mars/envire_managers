@@ -237,6 +237,9 @@ namespace mars {
                                  const base::TransformWithCovariance& originToRoot,
                                  mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only = true);
 
+
+            void testGraph(const VertexDesc current);
+
             // for passing parameters to the recursiveHelper.
             struct Params
             {

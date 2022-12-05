@@ -56,7 +56,7 @@
 
 namespace mars {
   namespace plugins {
-        namespace envire_managers {
+    namespace envire_managers {
 
 
     /**
@@ -284,7 +284,7 @@ namespace mars {
 
         // add relative id to node
         const envire::core::GraphTraits::vertex_descriptor vertex = EnvireStorageManager::instance()->getGraph()->vertex(frameID);
-        envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;            
+        envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;
 
         if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
         {
@@ -299,7 +299,7 @@ namespace mars {
                 {
                     newNode->setRelativeID(sn->getID());
                 }
-            }                
+            }
         }
 
         simNodes[nodeS->index] = newNodeItemPtr;
@@ -309,7 +309,7 @@ namespace mars {
         iMutex.unlock();
 
         control->sim->sceneHasChanged(false);
-        
+
         return nodeS->index;
     }
 
@@ -1158,7 +1158,7 @@ namespace mars {
     //   editedNode->setPosition(pos, false);
     //   editedNode->setRotation(q, false);
     //   nodesToUpdate[id] = iter->second;
-    }     
+    }
 
      void EnvireNodeManager::rotateNodeRecursive(mars::interfaces::NodeId id,
                                            const mars::utils::Vector &rotation_point,
@@ -1275,7 +1275,6 @@ namespace mars {
   //     }
      }
 
-
     /**
      *\brief Updates the Node values of dynamical nodes from the physics.
      */
@@ -1290,8 +1289,8 @@ namespace mars {
         std::shared_ptr<envire::core::TreeView> graphTreeView = EnvireStorageManager::instance()->getGraphTreeView();
         if(graphTreeView->crossEdges.size() > 0)
         {
-            const envire::core::GraphTraits::vertex_descriptor source = EnvireStorageManager::instance()->getGraph()->getSourceVertex(graphTreeView->crossEdges[0].edge);
-            const envire::core::GraphTraits::vertex_descriptor target = EnvireStorageManager::instance()->getGraph()->getTargetVertex(graphTreeView->crossEdges[0].edge);
+            const VertexDesc source = EnvireStorageManager::instance()->getGraph()->getSourceVertex(graphTreeView->crossEdges[0].edge);
+            const VertexDesc target = EnvireStorageManager::instance()->getGraph()->getTargetVertex(graphTreeView->crossEdges[0].edge);
             const envire::core::FrameId sourceId = EnvireStorageManager::instance()->getGraph()->getFrameId(source);
             const envire::core::FrameId targetId = EnvireStorageManager::instance()->getGraph()->getFrameId(target);
             const std::string msg = "Loop in tree detected: " + sourceId + " --> " + targetId +
@@ -1301,10 +1300,13 @@ namespace mars {
 
         // update the graph from top to bottom
         // starts with the parent and go to children
-        const envire::core::GraphTraits::vertex_descriptor originDesc = EnvireStorageManager::instance()->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
+        const VertexDesc originDesc = EnvireStorageManager::instance()->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
         updateChildPositions(originDesc, base::TransformWithCovariance::Identity(), calc_ms, physics_thread, dynamic_only);
+
+        //testGraph(originDesc);
     }
 
+    // TODO: replace typdef VertexDesc
     void EnvireNodeManager::updateChildPositions(const envire::core::GraphTraits::vertex_descriptor vertex,
                                                 const base::TransformWithCovariance& frameToRoot,
                                                 mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only)
@@ -1365,6 +1367,7 @@ namespace mars {
 
     }*/
 
+    // TODO: replace typdef, remove if containsItem condition
     void EnvireNodeManager::updatePositions( const envire::core::GraphTraits::vertex_descriptor origin,
                                         const envire::core::GraphTraits::vertex_descriptor target,
                                         const base::TransformWithCovariance& originToRoot,
@@ -1578,7 +1581,7 @@ namespace mars {
     //   NodeMap::iterator iter = simNodes.find(id);
     //   if (iter != simNodes.end())
     //     iter->second->setLinearDamping(damping);
-    }     
+    }
 
 
      void EnvireNodeManager::addRotation(mars::interfaces::NodeId id, const mars::utils::Quaternion &q) {
@@ -2022,7 +2025,7 @@ namespace mars {
         control->graphics->setDrawObjectScale(editedNode->getData()->getGraphicsID(), scale);
         control->graphics->setDrawObjectScale(editedNode->getData()->getGraphicsID2(), nodeS->ext);
       }
-      
+
       editedNode->getData()->changeNode(nodeS);
       if(sNode.groupID != 0 || nodeS->groupID != 0) {
         for(auto it: simNodes) {
@@ -2039,8 +2042,52 @@ namespace mars {
         maxGroupID = nodeS->groupID;
       }
       nodesToUpdate[sNode.index] = editedNode;
-    }     
+    }
 
-  }
+    void EnvireNodeManager::testGraph(const VertexDesc current) {
+        // check for nodes in the vertex desc
+        std::shared_ptr<envire::core::TreeView> graphTreeView = EnvireStorageManager::instance()->getGraphTreeView();
+        if(graphTreeView->tree.find(current) != graphTreeView->tree.end())
+        {
+            const VertexDesc root = EnvireStorageManager::instance()->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
+            envire::core::Transform tf = EnvireStorageManager::instance()->getGraph()->getTransform(root, current);
+
+            if (EnvireStorageManager::instance()->getGraph()->containsItems<SimNodeItem>(current))
+            {
+                envire::core::FrameId frameID = EnvireStorageManager::instance()->getGraph()->getFrameId(current);
+                //std::cout << "--- " << frameID << " ---" << std::endl;
+
+                SimNodeItemItr begin_sim, end_sim;
+                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(current);
+                for (;begin_sim!=end_sim; begin_sim++)
+                {
+                    const SimNodePtr sim_node = begin_sim->getData();
+                    mars::interfaces::NodeData node_data = sim_node->getSNode();
+
+                    // std::cout << "- " << node_data.name << std::endl;
+                    // std::cout << "physic pos: " << node_data.pos << std::endl;
+                    // std::cout << "graph pos: " << tf.transform.translation << std::endl;
+                    // std::cout << "physic rot: " << node_data.rot.w() << " " << node_data.rot.vec() << std::endl;
+                    // std::cout << "graph rot: " << tf.transform.orientation.w() << " " << tf.transform.orientation.vec() << std::endl;
+
+                    assert(node_data.pos.x() == tf.transform.translation.x());
+                    assert(node_data.pos.y() == tf.transform.translation.y());
+                    assert(node_data.pos.z() == tf.transform.translation.z());
+                    assert(node_data.rot.x() == tf.transform.orientation.x());
+                    assert(node_data.rot.y() == tf.transform.orientation.y());
+                    assert(node_data.rot.z() == tf.transform.orientation.z());
+                    assert(node_data.rot.w() == tf.transform.orientation.w());
+                }
+            }
+
+            const std::unordered_set<VertexDesc>& children = graphTreeView->tree[current].children;
+            for(const VertexDesc child : children)
+            {
+                testGraph(child);
+            }
+        }
+    }
+
+    } // end of namespace envire_manager
   } // end of namespace sim
 } // end of namespace mars
