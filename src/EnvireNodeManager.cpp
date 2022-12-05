@@ -379,11 +379,10 @@ namespace mars {
      *
      */
     bool EnvireNodeManager::exists(mars::interfaces::NodeId id) const {
-        printf("not implemented : %s\n", __PRETTY_FUNCTION__);
-    //   NodeMap::const_iterator iter = simNodes.find(id);
-    //   if(iter != simNodes.end()) {
-    //     return true;
-    //   }
+      NodeMap::const_iterator iter = simNodes.find(id);
+      if(iter != simNodes.end()) {
+        return true;
+      }
       return false;
     }
 
