@@ -48,8 +48,6 @@
 
 #include <mars/utils/MutexLocker.h>
 
-#include "EnvireDefs.hpp"
-
 #include "EnvireStorageManager.hpp"
 
 #ifdef _MSC_VER

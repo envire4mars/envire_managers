@@ -10,6 +10,7 @@ namespace mars {
   namespace sim {
     class SimEntity;
     class SimNode;
+    class SimJoint;
   }
 
   namespace plugins {
@@ -28,6 +29,12 @@ namespace mars {
       typedef envire::core::Item<SimNodePtr> SimNodeItem;
       typedef SimNodeItem::Ptr SimNodeItemPtr;
       typedef envire::core::EnvireGraph::ItemIterator<SimNodeItem> SimNodeItemItr;
+
+      // SimJoint
+      typedef std::shared_ptr<mars::sim::SimJoint> SimJointPtr;
+      typedef envire::core::Item<SimJointPtr> SimJointItem;
+      typedef SimJointItem::Ptr SimJointItemPtr;
+      typedef envire::core::EnvireGraph::ItemIterator<SimJointItem> SimJointItemItr;
 
 
 // TODO: should be asked to node manager

@@ -38,23 +38,11 @@
 #include <mars/interfaces/sim/ControlCenter.h>
 #include <mars/interfaces/sim/NodeManagerInterface.h>
 
-#include <envire_core/graph/EnvireGraph.hpp>
-#include <envire_core/items/Item.hpp>
-
-namespace mars {
-  namespace sim {
-    class SimJoint;
-    class SimNode;
-  }
-}
+#include "EnvireDefs.hpp"
 
 namespace mars {
   namespace plugins {
         namespace envire_managers {
-
-          using SimNodeItem =  envire::core::Item<std::shared_ptr<mars::sim::SimNode>>;
-          using SimJointItem =  envire::core::Item<std::shared_ptr<mars::sim::SimJoint>>;
-          using SimNodeItemPtr = SimNodeItem::Ptr;
 
           typedef std::map<mars::interfaces::NodeId, SimNodeItemPtr> NodeMap;
 
