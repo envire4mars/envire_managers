@@ -34,16 +34,12 @@
 #endif
 
 #include "EnvireDefs.hpp"
-
-#include <envire_core/graph/EnvireGraph.hpp>
-
 namespace mars
 {
   namespace plugins
   {
     namespace envire_managers
     {
-
       class EnvireStorageManager
       {
 

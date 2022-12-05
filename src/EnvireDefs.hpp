@@ -2,9 +2,33 @@
 #define MARS_PLUGINS_ENVIRE_MANAGERS_MARSDEFS_H
 #include <string>
 
+#include <envire_core/graph/EnvireGraph.hpp>
+#include <envire_core/items/Item.hpp>
+
 namespace mars {
+
+  namespace sim {
+    class SimEntity;
+    class SimNode;
+  }
+
   namespace plugins {
     namespace envire_managers {
+
+      typedef envire::core::GraphTraits::vertex_descriptor VertexDesc;
+
+      // SimEntity
+      typedef std::shared_ptr<mars::sim::SimEntity> SimEntityPtr;
+      typedef envire::core::Item<SimEntityPtr> SimEntityItem;
+      typedef SimEntityItem::Ptr SimEntityItemPtr;
+      typedef envire::core::EnvireGraph::ItemIterator<SimEntityItem> SimEntityItemItr;
+
+      // SimNode
+      typedef std::shared_ptr<mars::sim::SimNode> SimNodePtr;
+      typedef envire::core::Item<SimNodePtr> SimNodeItem;
+      typedef SimNodeItem::Ptr SimNodeItemPtr;
+      typedef envire::core::EnvireGraph::ItemIterator<SimNodeItem> SimNodeItemItr;
+
 
 // TODO: should be asked to node manager
 #define SIM_CENTER_FRAME_NAME std::string("center")
