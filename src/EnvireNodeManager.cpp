@@ -267,31 +267,31 @@ namespace mars {
 
         iMutex.lock();
         // if frame is not in the graph, create one
-        if (EnvireStorageManager::instance()->getGraph()->containsFrame(frameID) == false)
+        if (control->storage->getGraph()->containsFrame(frameID) == false)
         {
             LOG_DEBUG(("[EnvireNodeManager::addNode] create new transformation between center and " + frameID).c_str());
             envire::core::Transform nodeTransf(nodeS->pos, nodeS->rot);
             nodeTransf.time = base::Time::now();
-            EnvireStorageManager::instance()->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, frameID, nodeTransf);
+            control->storage->getGraph()->addTransform(SIM_CENTER_FRAME_NAME, frameID, nodeTransf);
         }
 
         // add node into the graph
         SimNodeItemPtr newNodeItemPtr( new SimNodeItem(newNode));
-        EnvireStorageManager::instance()->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
+        control->storage->getGraph()->addItemToFrame(frameID, newNodeItemPtr);
         #ifdef DEBUG_ENVIRE_MANAGERS
             LOG_DEBUG(("[EnvireNodeManager::addNode] non physical " + nodeS->frameID + " " + nodeS->name).c_str());
         #endif
 
         // add relative id to node
-        const envire::core::GraphTraits::vertex_descriptor vertex = EnvireStorageManager::instance()->getGraph()->vertex(frameID);
-        envire::core::GraphTraits::vertex_descriptor parent_vertex = EnvireStorageManager::instance()->getGraphTreeView()->tree[vertex].parent;
+        const envire::core::GraphTraits::vertex_descriptor vertex = control->storage->getGraph()->vertex(frameID);
+        envire::core::GraphTraits::vertex_descriptor parent_vertex = control->storage->getGraphTreeView()->tree[vertex].parent;
 
-        if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
+        if (control->storage->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(parent_vertex))
         {
             // Update simulation node
             using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
             IteratorSimNode begin_sim, end_sim;
-            boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(parent_vertex);
+            boost::tie(begin_sim, end_sim) = control->storage->getGraph()->getItems<SimNodeItem>(parent_vertex);
             for (;begin_sim!=end_sim; begin_sim++)
             {
                 const std::shared_ptr<mars::sim::SimNode> sn = begin_sim->getData();
@@ -1285,13 +1285,13 @@ namespace mars {
         mars::utils::MutexLocker locker(&iMutex);
 
         // FIX: update Graph
-        std::shared_ptr<envire::core::TreeView> graphTreeView = EnvireStorageManager::instance()->getGraphTreeView();
+        std::shared_ptr<envire::core::TreeView> graphTreeView = control->storage->getGraphTreeView();
         if(graphTreeView->crossEdges.size() > 0)
         {
-            const VertexDesc source = EnvireStorageManager::instance()->getGraph()->getSourceVertex(graphTreeView->crossEdges[0].edge);
-            const VertexDesc target = EnvireStorageManager::instance()->getGraph()->getTargetVertex(graphTreeView->crossEdges[0].edge);
-            const envire::core::FrameId sourceId = EnvireStorageManager::instance()->getGraph()->getFrameId(source);
-            const envire::core::FrameId targetId = EnvireStorageManager::instance()->getGraph()->getFrameId(target);
+            const VertexDesc source = control->storage->getGraph()->getSourceVertex(graphTreeView->crossEdges[0].edge);
+            const VertexDesc target = control->storage->getGraph()->getTargetVertex(graphTreeView->crossEdges[0].edge);
+            const envire::core::FrameId sourceId = control->storage->getGraph()->getFrameId(source);
+            const envire::core::FrameId targetId = control->storage->getGraph()->getFrameId(target);
             const std::string msg = "Loop in tree detected: " + sourceId + " --> " + targetId +
                                ". The physics plugin cannot handle loops in the graph";
             throw std::runtime_error(msg);
@@ -1299,7 +1299,7 @@ namespace mars {
 
         // update the graph from top to bottom
         // starts with the parent and go to children
-        const VertexDesc originDesc = EnvireStorageManager::instance()->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
+        const VertexDesc originDesc = control->storage->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
         updateChildPositions(originDesc, base::TransformWithCovariance::Identity(), calc_ms, physics_thread, dynamic_only);
 
         //testGraph(originDesc);
@@ -1310,7 +1310,7 @@ namespace mars {
                                                 const base::TransformWithCovariance& frameToRoot,
                                                 mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only)
     {
-        std::shared_ptr<envire::core::TreeView> graphTreeView = EnvireStorageManager::instance()->getGraphTreeView();
+        std::shared_ptr<envire::core::TreeView> graphTreeView = control->storage->getGraphTreeView();
         if(graphTreeView->tree.find(vertex) != graphTreeView->tree.end())
         {
             const std::unordered_set<envire::core::GraphTraits::vertex_descriptor>& children = graphTreeView->tree[vertex].children;
@@ -1323,7 +1323,7 @@ namespace mars {
 
     /*void EnvireNodeManager::setTfToCenter(envire::core::FrameId frameId, const envire::core::Transform tf){
         mars::utils::MutexLocker locker(&iMutex);
-        EnvireStorageManager::instance()->getGraph()->updateTransform(SIM_CENTER_FRAME_NAME, frameId, tf);
+        control->storage->getGraph()->updateTransform(SIM_CENTER_FRAME_NAME, frameId, tf);
         updatePositionsFromGraph();
     }
 
@@ -1331,19 +1331,19 @@ namespace mars {
 
         //update positions in sim nodes
 
-        std::pair<envire::core::EnvireGraph::vertex_iterator, envire::core::EnvireGraph::vertex_iterator> vertices = EnvireStorageManager::instance()->getGraph()->getVertices();
+        std::pair<envire::core::EnvireGraph::vertex_iterator, envire::core::EnvireGraph::vertex_iterator> vertices = control->storage->getGraph()->getVertices();
 
         for (auto vertex = vertices.first; vertex != vertices.second; vertex++){
 
-            envire::core::GraphTraits::vertex_descriptor center = EnvireStorageManager::instance()->getGraph()->getVertex(SIM_CENTER_FRAME_NAME);
-            base::TransformWithCovariance targetPos = EnvireStorageManager::instance()->getGraph()->getTransform(center,*vertex).transform;
+            envire::core::GraphTraits::vertex_descriptor center = control->storage->getGraph()->getVertex(SIM_CENTER_FRAME_NAME);
+            base::TransformWithCovariance targetPos = control->storage->getGraph()->getTransform(center,*vertex).transform;
 
-            if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(*vertex)){
+            if (control->storage->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(*vertex)){
                 // Update simulation node
 
                 using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
                 IteratorSimNode begin_sim, end_sim;
-                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(*vertex);
+                boost::tie(begin_sim, end_sim) = control->storage->getGraph()->getItems<SimNodeItem>(*vertex);
                 for (;begin_sim!=end_sim; begin_sim++)
                 {
                     const std::shared_ptr<mars::sim::SimNode> sim_node = begin_sim->getData();
@@ -1356,7 +1356,7 @@ namespace mars {
                     utils::Quaternion rot = targetPos.orientation;
                     sim_node->setRotation(rot,true);
         //                    }
-                    std::string name = EnvireStorageManager::instance()->getGraph()->getFrameId(*vertex);
+                    std::string name = control->storage->getGraph()->getFrameId(*vertex);
 
                     LOG_WARN("node %s (%.2f %.2f %.2f) to (%.2f %.2f %.2f)\n",name.c_str(),oldpos.x(),oldpos.y(),oldpos.z(),pos.x(),pos.y(),pos.z());
 
@@ -1372,14 +1372,14 @@ namespace mars {
                                         const base::TransformWithCovariance& originToRoot,
                                         mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only)
     {
-        envire::core::Transform tf = EnvireStorageManager::instance()->getGraph()->getTransform(origin, target);
+        envire::core::Transform tf = control->storage->getGraph()->getTransform(origin, target);
 
-        if (EnvireStorageManager::instance()->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(target))
+        if (control->storage->getGraph()->containsItems<envire::core::Item<std::shared_ptr<mars::sim::SimNode>>>(target))
         {
             // Update simulation node
             using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
             IteratorSimNode begin_sim, end_sim;
-            boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(target);
+            boost::tie(begin_sim, end_sim) = control->storage->getGraph()->getItems<SimNodeItem>(target);
             for (;begin_sim!=end_sim; begin_sim++)
             {
                 const std::shared_ptr<mars::sim::SimNode> sim_node = begin_sim->getData();
@@ -1407,13 +1407,13 @@ namespace mars {
 
                         tf.setTransform(originToRoot * absolutTransform);
                         tf.time = base::Time::now();
-                        EnvireStorageManager::instance()->getGraph()->updateTransform(origin, target, tf);
+                        control->storage->getGraph()->updateTransform(origin, target, tf);
                     }
                 }
             }
         }
 
-        const envire::core::Transform invTf = EnvireStorageManager::instance()->getGraph()->getTransform(target, origin);
+        const envire::core::Transform invTf = control->storage->getGraph()->getTransform(target, origin);
         updateChildPositions(target, invTf.transform * originToRoot, calc_ms, physics_thread);
     }
 
@@ -2045,19 +2045,19 @@ namespace mars {
 
     void EnvireNodeManager::testGraph(const VertexDesc current) {
         // check for nodes in the vertex desc
-        std::shared_ptr<envire::core::TreeView> graphTreeView = EnvireStorageManager::instance()->getGraphTreeView();
+        std::shared_ptr<envire::core::TreeView> graphTreeView = control->storage->getGraphTreeView();
         if(graphTreeView->tree.find(current) != graphTreeView->tree.end())
         {
-            const VertexDesc root = EnvireStorageManager::instance()->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
-            envire::core::Transform tf = EnvireStorageManager::instance()->getGraph()->getTransform(root, current);
+            const VertexDesc root = control->storage->getGraph()->vertex(SIM_CENTER_FRAME_NAME);
+            envire::core::Transform tf = control->storage->getGraph()->getTransform(root, current);
 
-            if (EnvireStorageManager::instance()->getGraph()->containsItems<SimNodeItem>(current))
+            if (control->storage->getGraph()->containsItems<SimNodeItem>(current))
             {
-                envire::core::FrameId frameID = EnvireStorageManager::instance()->getGraph()->getFrameId(current);
+                envire::core::FrameId frameID = control->storage->getGraph()->getFrameId(current);
                 //std::cout << "--- " << frameID << " ---" << std::endl;
 
                 SimNodeItemItr begin_sim, end_sim;
-                boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(current);
+                boost::tie(begin_sim, end_sim) = control->storage->getGraph()->getItems<SimNodeItem>(current);
                 for (;begin_sim!=end_sim; begin_sim++)
                 {
                     const SimNodePtr sim_node = begin_sim->getData();

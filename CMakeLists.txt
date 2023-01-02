@@ -11,6 +11,8 @@ define_module_info()
 #FIXME the defintions have to the same as in mars/sim/CMakeLists.txt
 add_definitions(-DODE11=1 -DdDOUBLE)
 
+add_definitions(-ggdb)
+
 
 pkg_check_modules(PKGCONFIG REQUIRED
 			    lib_manager
@@ -61,7 +63,7 @@ install(TARGETS ${PROJECT_NAME} ${_INSTALL_DESTINATIONS})
 # Install headers into mars include directory
 install(FILES ${HEADERS} DESTINATION include/mars/plugins/${PROJECT_NAME})
 
-# Prepare and install necessary files to support finding of the library 
+# Prepare and install necessary files to support finding of the library
 # using pkg-config
 configure_file(${PROJECT_NAME}.pc.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)

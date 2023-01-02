@@ -139,7 +139,7 @@ namespace mars {
         newJoint->setPhysicalJoint(newJointInterface);
 
         SimJointItemPtr newJointItemPtr( new SimJointItem(newJoint));
-        EnvireStorageManager::instance()->getGraph()->addItemToFrame(jointS->frameID, newJointItemPtr);
+        control->storage->getGraph()->addItemToFrame(jointS->frameID, newJointItemPtr);
 
         simJoints[jointS->index] = newJointItemPtr;
         iMutex.unlock();

@@ -33,6 +33,8 @@
 #warning "EnvireStorageManager.hpp"
 #endif
 
+#include <mars/interfaces/sim/StorageManagerInterface.h>
+
 #include "EnvireDefs.hpp"
 
 // TODO: simplify usage EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem> => EnvireStorageManager::instance()->getItems<T>
@@ -43,40 +45,48 @@ namespace mars
   {
     namespace envire_managers
     {
-      class EnvireStorageManager
+      class EnvireStorageManager : public mars::interfaces::StorageManagerInterface
       {
 
       public:
 
-        static std::shared_ptr<EnvireStorageManager> instance() {
-        //NOTE it is important that instance is a local static variable because we need a way to 
+        /*static std::shared_ptr<EnvireStorageManager> instance() {
+        //NOTE it is important that instance is a local static variable because we need a way to
         //     control static initialization/destruction order.
-        //     If instance is global the static initialization order depends on the order in which 
-        //     libraries are loaded which may lead to strange crashes          
+        //     If instance is global the static initialization order depends on the order in which
+        //     libraries are loaded which may lead to strange crashes
             // Static variables are created and initialised when their
             // definition is run through for the first time. The variable and
             // its content are then retained until the end of the program.
-            static std::shared_ptr<EnvireStorageManager> storage(new EnvireStorageManager()); 
+            static std::shared_ptr<EnvireStorageManager> storage(new EnvireStorageManager());
             return storage;
-        }
+        }*/
 
-        EnvireStorageManager() {
+        EnvireStorageManager(mars::interfaces::ControlCenter *c) :
+          control(c)
+         {
           graph = std::shared_ptr<envire::core::EnvireGraph> (new envire::core::EnvireGraph());
           graph->addFrame(SIM_CENTER_FRAME_NAME);
           // keep updating tree
           graphTreeView = std::shared_ptr<envire::core::TreeView>(new envire::core::TreeView());
-          graph->getTree(SIM_CENTER_FRAME_NAME, true, graphTreeView.get());          
+          graph->getTree(SIM_CENTER_FRAME_NAME, true, graphTreeView.get());
         }
 
-        std::shared_ptr<envire::core::EnvireGraph> getGraph() {
+        virtual std::shared_ptr<envire::core::EnvireGraph> getGraph() {
           return graph;
         }
 
-        std::shared_ptr<envire::core::TreeView> getGraphTreeView() {
+        virtual std::shared_ptr<envire::core::TreeView> getGraphTreeView() {
           return graphTreeView;
         }
 
+        virtual std::string getRootFrame()
+        {
+          return SIM_CENTER_FRAME_NAME;
+        }
+
       private:
+        mars::interfaces::ControlCenter *control;
         std::shared_ptr<envire::core::EnvireGraph> graph;
         std::shared_ptr<envire::core::TreeView> graphTreeView;
 
