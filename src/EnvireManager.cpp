@@ -26,7 +26,6 @@
  * Version 0.1
  */
 
-
 #include "EnvireManager.hpp"
 #include <mars/data_broker/DataBrokerInterface.h>
 #include <mars/data_broker/DataPackage.h>
@@ -45,9 +44,8 @@
 #include "EnvireSensorManager.hpp"
 #include "EnvireEntityManager.hpp"
 
-
 // Comment-in the following line in order to get debug traces
-//#define DEBUG
+// #define DEBUG
 
 using namespace mars::plugins::envire_managers;
 using namespace mars::utils;
@@ -55,34 +53,41 @@ using namespace mars::interfaces;
 using namespace envire::core;
 
 EnvireManager::EnvireManager(lib_manager::LibManager *theManager)
-: MarsPluginTemplate(theManager, "EnvireManager") {
+    : MarsPluginTemplate(theManager, "EnvireManager")
+{
 
+    control->storage = new EnvireStorageManager(control);
+    LOG_DEBUG("[EnvireManager] set EnvireStorageManager as control->storage");
     control->nodes = new EnvireNodeManager(control, theManager);
     LOG_DEBUG("[EnvireManager] set EnvireNodeManager as control->nodes");
     control->joints = new EnvireJointManager(control);
-    LOG_DEBUG("[EnvireManager] set EnvireJointManager as control->joints");    
+    LOG_DEBUG("[EnvireManager] set EnvireJointManager as control->joints");
     control->motors = new EnvireMotorManager(control);
     LOG_DEBUG("[EnvireManager] set EnvireMotorManager as control->motors");
     control->sensors = new EnvireSensorManager(control);
-    LOG_DEBUG("[EnvireManager] set EnvireSensorManager as control->sensors"); 
+    LOG_DEBUG("[EnvireManager] set EnvireSensorManager as control->sensors");
     control->entities = new EnvireEntityManager(control);
     LOG_DEBUG("[EnvireManager] set EnvireEntityManager as control->entities");
 }
 
-void EnvireManager::init() {
-    assert(EnvireStorageManager::instance()->getGraph() != nullptr);
+void EnvireManager::init()
+{
+    assert(control->storage->getGraph() != nullptr);
     motorIndex = 1;
 }
 
-void EnvireManager::reset() {
+void EnvireManager::reset()
+{
 }
 
-EnvireManager::~EnvireManager() {
+EnvireManager::~EnvireManager()
+{
 }
 
-void EnvireManager::update(sReal time_ms) {
-    //control->motors->setMotorValue(1, 0.15);
-    // control->motors->setMotorValue(id, value);
+void EnvireManager::update(sReal time_ms)
+{
+    // control->motors->setMotorValue(1, 0.15);
+    //  control->motors->setMotorValue(id, value);
 }
 
 DESTROY_LIB(mars::plugins::envire_managers::EnvireManager);
