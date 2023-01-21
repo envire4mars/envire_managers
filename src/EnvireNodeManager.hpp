@@ -77,6 +77,7 @@ namespace mars {
             virtual int getNodeCount() const;
             virtual mars::interfaces::NodeId getNextNodeID() const;
             virtual bool setAbsolutePose(std::string frame, utils::Vector position, utils::Quaternion orientation);
+            virtual bool getAbsolutePose(std::string frame, utils::Vector &position, utils::Quaternion &orientation) const;
             virtual void editNode(mars::interfaces::NodeData *nodeS, int changes);
             virtual void changeGroup(mars::interfaces::NodeId id, int group);
             virtual void getListNodes(std::vector<mars::interfaces::core_objects_exchange> *nodeList) const;

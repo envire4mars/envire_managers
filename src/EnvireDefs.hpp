@@ -39,7 +39,6 @@ namespace mars {
 
 // TODO: should be asked to node manager
 #define SIM_CENTER_FRAME_NAME std::string("center")
-#define MLS_FRAME_NAME std::string("mls_01")
 //#define DUMPED_MLS_FRAME_NAME std::string("mls_map") // The name of the frame in which to find a mls in a .graph file
 #define DUMPED_MLS_FRAME_NAME std::string("map") // The name of the frame in which to find a mls in a .graph file
 #define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"

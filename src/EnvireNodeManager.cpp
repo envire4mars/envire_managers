@@ -434,6 +434,21 @@ namespace mars {
         }
     }
 
+    bool EnvireNodeManager::getAbsolutePose(std::string frame, utils::Vector &position, utils::Quaternion &orientation) const
+    {
+        mars::utils::MutexLocker locker(&iMutex);
+        if (control->storage->getGraph()->containsFrame(frame)) {
+            envire::core::Transform tf = control->storage->getGraph()->getTransform(SIM_CENTER_FRAME_NAME, frame);
+            position = tf.transform.translation;
+            orientation = tf.transform.orientation;
+            return true;
+        } else
+        {
+            LOG_ERROR("There is no frame in the graph with the name " + frame);
+            return false;
+        }
+    }
+
   //   /**
   //    * \brief Change a node. The simulation must be updated in here.
   //    * doc has to be written
