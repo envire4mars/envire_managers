@@ -55,8 +55,10 @@ namespace mars {
           using SimNodeItem =  envire::core::Item<std::shared_ptr<mars::sim::SimNode>>;
           using SimJointItem =  envire::core::Item<std::shared_ptr<mars::sim::SimJoint>>;
           using SimNodeItemPtr = SimNodeItem::Ptr;
+          using SimNodeItemItr = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
 
           typedef std::map<mars::interfaces::NodeId, SimNodeItemPtr> NodeMap;
+          
 
           /**
            * The declaration of the EnvireNodeManager class.

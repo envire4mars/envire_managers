@@ -36,6 +36,7 @@
 #include "EnvireDefs.hpp"
 
 #include <envire_core/graph/EnvireGraph.hpp>
+#include <envire_core/items/Item.hpp>
 
 namespace mars
 {
@@ -43,6 +44,8 @@ namespace mars
   {
     namespace envire_managers
     {
+
+      using GraphVertexDesc = envire::core::GraphTraits::vertex_descriptor;
 
       class EnvireStorageManager
       {

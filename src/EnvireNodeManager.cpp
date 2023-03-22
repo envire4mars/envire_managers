@@ -432,17 +432,26 @@ namespace mars {
         mars::interfaces::NodeData sNode = editedNode->getData()->getSNode();
         if(changes & mars::interfaces::EDIT_NODE_POS) {
             if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
-                // first move the node an all nodes of the group
+                // first move the node
                 offset = editedNode->getData()->setPosition(nodeS->pos, true);
-                // then move recursive all nodes that are connected through
-                // joints to the node
-                std::vector<std::shared_ptr<mars::sim::SimJoint>> joints = control->joints->getSimJoints();
-                if(editedNode->getData()->getGroupID())
-                    gids.push_back(editedNode->getData()->getGroupID());
-                NodeMap nodes = simNodes;
-                std::vector<std::shared_ptr<mars::sim::SimJoint>> jointsj = joints;
-                nodes.erase(nodes.find(editedNode->getData()->getID()));
-                moveNodeRecursive(nodeS->index, offset, &joints, &gids, &nodes);
+
+                // parse all sim nodes stored in the underlying frames
+                // and update their position by offset
+                const GraphVertexDesc nodeVertex = EnvireStorageManager::instance()->getGraph()->vertex(editedNode->getFrame());
+                const std::unordered_set<GraphVertexDesc>& children = EnvireStorageManager::instance()->getGraphTreeView()->tree[nodeVertex].children;
+                // parse all underlying frames to get the stored nodes
+                for(const GraphVertexDesc child : children)
+                {
+                    // get all nodes in the frame
+                    using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
+                    IteratorSimNode begin_sim, end_sim;
+                    boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(child);
+                    // move all nodes by offset
+                    for (;begin_sim!=end_sim; begin_sim++)
+                    {
+                        begin_sim->getData()->setPositionOffset(offset);
+                    }
+                }
             } else {
                 if(nodeS->relative_id) {
                     iMutex.unlock();

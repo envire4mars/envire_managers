@@ -42,6 +42,7 @@
 #include <mars/interfaces/sim/EntityManagerInterface.h>
 #include <mars/utils/Mutex.h>
 #include <configmaps/ConfigData.h>
+#include <mars/interfaces/core_objects_exchange.h>
 
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
