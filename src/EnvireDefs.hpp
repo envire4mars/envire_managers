@@ -2,13 +2,43 @@
 #define MARS_PLUGINS_ENVIRE_MANAGERS_MARSDEFS_H
 #include <string>
 
+#include <envire_core/graph/EnvireGraph.hpp>
+#include <envire_core/items/Item.hpp>
+
 namespace mars {
+
+  namespace sim {
+    class SimEntity;
+    class SimNode;
+    class SimJoint;
+  }
+
   namespace plugins {
     namespace envire_managers {
 
+      typedef envire::core::GraphTraits::vertex_descriptor VertexDesc;
+
+      // SimEntity
+      typedef std::shared_ptr<mars::sim::SimEntity> SimEntityPtr;
+      typedef envire::core::Item<SimEntityPtr> SimEntityItem;
+      typedef SimEntityItem::Ptr SimEntityItemPtr;
+      typedef envire::core::EnvireGraph::ItemIterator<SimEntityItem> SimEntityItemItr;
+
+      // SimNode
+      typedef std::shared_ptr<mars::sim::SimNode> SimNodePtr;
+      typedef envire::core::Item<SimNodePtr> SimNodeItem;
+      typedef SimNodeItem::Ptr SimNodeItemPtr;
+      typedef envire::core::EnvireGraph::ItemIterator<SimNodeItem> SimNodeItemItr;
+
+      // SimJoint
+      typedef std::shared_ptr<mars::sim::SimJoint> SimJointPtr;
+      typedef envire::core::Item<SimJointPtr> SimJointItem;
+      typedef SimJointItem::Ptr SimJointItemPtr;
+      typedef envire::core::EnvireGraph::ItemIterator<SimJointItem> SimJointItemItr;
+
+
 // TODO: should be asked to node manager
 #define SIM_CENTER_FRAME_NAME std::string("center")
-#define MLS_FRAME_NAME std::string("mls_01")
 //#define DUMPED_MLS_FRAME_NAME std::string("mls_map") // The name of the frame in which to find a mls in a .graph file
 #define DUMPED_MLS_FRAME_NAME std::string("map") // The name of the frame in which to find a mls in a .graph file
 #define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"

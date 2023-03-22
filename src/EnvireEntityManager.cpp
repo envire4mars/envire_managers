@@ -67,12 +67,12 @@ namespace mars {
 
       // create new graph item for the entity
       // and add it into the graph
-      SimEntityItemPtr simEntityItem(new SimEntityItem(entity));        
-      EnvireStorageManager::instance()->getGraph()->addItemToFrame(entity->getFrameID(), simEntityItem);
+      SimEntityItemPtr simEntityItem(new SimEntityItem(entity));
+      control->storage->getGraph()->addItemToFrame(entity->getFrameID(), simEntityItem);
 
       mars::utils::MutexLocker locker(&iMutex);
-      
-      unsigned long id = next_entity_id;      
+
+      unsigned long id = next_entity_id;
       next_entity_id++;
 
       entity->setID(id);
@@ -185,7 +185,7 @@ namespace mars {
 
     void EnvireEntityManager::addSensor(const std::string& entityName, long unsigned int sensorId,
         const std::string& sensorName) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);    
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       // //iterate over all robots to find the robot with the given name
       // for (std::map<unsigned long, mars::sim::SimEntity*>::iterator iter = entities.begin();
       //     iter != entities.end(); ++iter) {
@@ -195,7 +195,7 @@ namespace mars {
       //     break;
       //   }
       // }
-    }    
+    }
 
     void EnvireEntityManager::addJoint(const std::string& entityName, long unsigned int jointId,
         const std::string& jointName) {
@@ -213,7 +213,7 @@ namespace mars {
 
     void EnvireEntityManager::addController(const std::string& entityName,
         long unsigned int controllerId) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);          
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       // //iterate over all robots to find the robot with the given name
       // for (std::map<unsigned long, mars::sim::SimEntity*>::iterator iter = entities.begin();
       //     iter != entities.end(); ++iter) {
@@ -274,7 +274,7 @@ namespace mars {
     }
 
     std::vector<mars::sim::SimEntity*> EnvireEntityManager::getEntities(const std::string &name) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);      
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       // std::vector<mars::sim::SimEntity*> out;
       // for (std::map<unsigned long, mars::sim::SimEntity*>::iterator iter = entities.begin();
       //     iter != entities.end(); ++iter) {
@@ -290,7 +290,7 @@ namespace mars {
       for (EntityMapItr iter = entities.begin(); iter != entities.end(); ++iter) {
         out.push_back(iter->second->getData());
       }
-      return out;      
+      return out;
     }
 
     void EnvireEntityManager::getListEntities(std::vector<mars::interfaces::core_objects_exchange>* entityList) {
@@ -300,7 +300,7 @@ namespace mars {
         iter->second->getData()->getCoreExchange(&obj);
         entityList->push_back(obj);
       }
-    }    
+    }
 
     std::vector<mars::sim::SimEntity*> EnvireEntityManager::getEntitiesOfAssembly(
       const std::string &assembly_name)
@@ -348,7 +348,7 @@ namespace mars {
 
     long unsigned int EnvireEntityManager::getEntityNode(const std::string& entityName,
         const std::string& nodeName) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);          
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       // mars::utils::MutexLocker locker(&iMutex);
       // mars::sim::SimEntity *entity = getEntity(entityName);
       // unsigned long node = 0;
@@ -360,7 +360,7 @@ namespace mars {
 
     long unsigned int EnvireEntityManager::getEntityMotor(const std::string& entityName,
         const std::string& motorName) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);          
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       // //not sure if a mutex lock is needed here
       // mars::utils::MutexLocker locker(&iMutex);
       // mars::sim::SimEntity *entity = getEntity(entityName);
@@ -373,7 +373,7 @@ namespace mars {
 
     long unsigned int EnvireEntityManager::getEntitySensor(const std::string& entityName,
         const std::string& sensorName) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);          
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       // //not sure if a mutex lock is needed here
       // mars::utils::MutexLocker locker(&iMutex);
       // mars::sim::SimEntity *entity = getEntity(entityName);
@@ -382,11 +382,11 @@ namespace mars {
       //   sensor = entity->getSensor(sensorName);
       // }
       // return sensor;
-    }     
+    }
 
     std::vector<unsigned long> EnvireEntityManager::getEntityControllerList(
         const std::string &entityName) {
-      printf("not implemented : %s\n", __PRETTY_FUNCTION__);          
+      printf("not implemented : %s\n", __PRETTY_FUNCTION__);
       // //not sure if a mutex lock is needed here
       // mars::utils::MutexLocker locker(&iMutex);
       // mars::sim::SimEntity *entity = getEntity(entityName);

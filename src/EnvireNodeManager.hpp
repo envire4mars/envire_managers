@@ -38,15 +38,7 @@
 #include <mars/interfaces/sim/ControlCenter.h>
 #include <mars/interfaces/sim/NodeManagerInterface.h>
 
-#include <envire_core/graph/EnvireGraph.hpp>
-#include <envire_core/items/Item.hpp>
-
-namespace mars {
-  namespace sim {
-    class SimJoint;
-    class SimNode;
-  }
-}
+#include "EnvireDefs.hpp"
 
 namespace mars {
   namespace plugins {
@@ -58,7 +50,7 @@ namespace mars {
           using SimNodeItemItr = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
 
           typedef std::map<mars::interfaces::NodeId, SimNodeItemPtr> NodeMap;
-          
+
 
           /**
            * The declaration of the EnvireNodeManager class.
@@ -90,6 +82,8 @@ namespace mars {
             virtual bool exists(mars::interfaces::NodeId id) const;
             virtual int getNodeCount() const;
             virtual mars::interfaces::NodeId getNextNodeID() const;
+            virtual bool setAbsolutePose(std::string frame, utils::Vector position, utils::Quaternion orientation);
+            virtual bool getAbsolutePose(std::string frame, utils::Vector &position, utils::Quaternion &orientation) const;
             virtual void editNode(mars::interfaces::NodeData *nodeS, int changes);
             virtual void changeGroup(mars::interfaces::NodeId id, int group);
             virtual void getListNodes(std::vector<mars::interfaces::core_objects_exchange> *nodeList) const;
@@ -172,7 +166,7 @@ namespace mars {
                                     unsigned long excludeJointId, bool includeConnected = true);
             virtual void positionNode(mars::interfaces::NodeId id, mars::utils::Vector pos,
                                       unsigned long excludeJointId);
-            virtual void setSingleNodePose(mars::interfaces::NodeId id, mars::utils::Vector pos, mars::utils::Quaternion q);                                      
+            virtual void setSingleNodePose(mars::interfaces::NodeId id, mars::utils::Vector pos, mars::utils::Quaternion q);
             virtual unsigned long getMaxGroupID() { return maxGroupID; }
             virtual void edit(mars::interfaces::NodeId id, const std::string &key,
                               const std::string &value);
@@ -250,6 +244,9 @@ namespace mars {
                                  const envire::core::GraphTraits::vertex_descriptor target,
                                  const base::TransformWithCovariance& originToRoot,
                                  mars::interfaces::sReal calc_ms, bool physics_thread, bool dynamic_only = true);
+
+
+            void testGraph(const VertexDesc current);
 
             // for passing parameters to the recursiveHelper.
             struct Params
