@@ -38,6 +38,8 @@
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
 
+#include <envire_core/graph/GraphDrawing.hpp>
+
 #include "EnvireDefs.hpp"
 
 // TODO: simplify usage EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem> => EnvireStorageManager::instance()->getItems<T>
@@ -88,6 +90,11 @@ namespace mars
         virtual std::string getRootFrame()
         {
           return SIM_CENTER_FRAME_NAME;
+        }
+
+        virtual void saveGraph(const std::string &fileName)
+        {
+            envire::core::GraphDrawing::write(*(graph.get()), fileName);
         }
 
       private:

@@ -105,6 +105,7 @@ namespace mars {
                                 bool loadGraphics) {
 
         iMutex.lock();
+
         // FIX: if frameID is not set
         // FIX: add source and target frame id in node data
         // so we can specify where the node should be placed
@@ -230,7 +231,6 @@ namespace mars {
                         return INVALID_ID;
                     }
                 }
-
                 control->loadCenter->loadHeightmap->readPixelData(nodeS->terrain);
                 if (release_graphics){
                     libManager->releaseLibrary("mars_graphics");
@@ -615,14 +615,12 @@ namespace mars {
         // we have to update all nodes, since static nodes may be changed inside this function
         // so we have to keep graph up to date with new node data pose
         //if (editedNode->getData()->isMovable()) {
-        //    std::cout << "update dynamic" << std::endl;
         //    updateNodes(0, false, true);   // update only dynamic nodes
         //}
         //else {
-        //    std::cout << "update static" << std::endl;
         //    updateNodes(0, false, false);    // update all nodes, also static ones
         //}
-        updateDynamicNodes(0, false);
+        updateNodes(0, false, false);
    }
 
     void EnvireNodeManager::changeGroup(mars::interfaces::NodeId id, int group) {
@@ -790,14 +788,14 @@ namespace mars {
   //    */
    void EnvireNodeManager::setPosition(mars::interfaces::NodeId id, const mars::utils::Vector &pos) {
        mars::utils::MutexLocker locker(&iMutex);
-       printf("not implemented : %s\n", __PRETTY_FUNCTION__);
+       //printf("not implemented : %s\n", __PRETTY_FUNCTION__);
        // Find in which frame the simNode with the given Id and set its transformation to the center to be equal to the given position.
        // This is a bit more tricky, as you have to change the last transformation only to match the total tf to the center.
-  //     NodeMap::iterator iter = simNodes.find(id);
-  //     if (iter != simNodes.end()) {
-  //       iter->second->setPosition(pos, 1);
-  //       nodesToUpdate[id] = iter->second;
-  //     }
+      NodeMap::iterator iter = simNodes.find(id);
+      if (iter != simNodes.end()) {
+        iter->second->getData()->setPosition(pos, 1);
+        nodesToUpdate[id] = iter->second;
+      }
    }
 
 
@@ -1458,6 +1456,17 @@ namespace mars {
                         absolutTransform.translation = sim_node->getPosition();
                         absolutTransform.orientation = sim_node->getRotation();
 
+                        // this is quick fix
+                        // since the height map in ode will be rotated by 90 degree
+                        // (it is described in x - z direction)
+                        // so we have to apply back 90 degree transformation
+                        // to fix the visualisation
+                        if (node_data.physicMode == mars::interfaces::NODE_TYPE_TERRAIN) {
+                            mars::utils::Quaternion back_rotation(0.71, -0.71, 0, 0);
+                            mars::utils::Quaternion rotation = sim_node->getRotation();
+
+                            absolutTransform.orientation = sim_node->getRotation() * back_rotation;
+                        }
                         // FIX: do we need update time in transformation?
 
                         tf.setTransform(originToRoot * absolutTransform);
