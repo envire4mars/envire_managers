@@ -481,15 +481,15 @@ namespace mars {
 
                 // parse all sim nodes stored in the underlying frames
                 // and update their position by offset
-                const GraphVertexDesc nodeVertex = EnvireStorageManager::instance()->getGraph()->vertex(editedNode->getFrame());
-                const std::unordered_set<GraphVertexDesc>& children = EnvireStorageManager::instance()->getGraphTreeView()->tree[nodeVertex].children;
+                const GraphVertexDesc nodeVertex = control->storage->getGraph()->vertex(editedNode->getFrame());
+                const std::unordered_set<GraphVertexDesc>& children = control->storage->getGraphTreeView()->tree[nodeVertex].children;
                 // parse all underlying frames to get the stored nodes
                 for(const GraphVertexDesc child : children)
                 {
                     // get all nodes in the frame
                     using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
                     IteratorSimNode begin_sim, end_sim;
-                    boost::tie(begin_sim, end_sim) = EnvireStorageManager::instance()->getGraph()->getItems<SimNodeItem>(child);
+                    boost::tie(begin_sim, end_sim) = control->storage->getGraph()->getItems<SimNodeItem>(child);
                     // move all nodes by offset
                     for (;begin_sim!=end_sim; begin_sim++)
                     {
