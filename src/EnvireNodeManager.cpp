@@ -476,26 +476,17 @@ namespace mars {
         mars::interfaces::NodeData sNode = editedNode->getData()->getSNode();
         if(changes & mars::interfaces::EDIT_NODE_POS) {
             if(changes & mars::interfaces::EDIT_NODE_MOVE_ALL) {
-                // first move the node
+                // first move the node an all nodes of the group
                 offset = editedNode->getData()->setPosition(nodeS->pos, true);
-
-                // parse all sim nodes stored in the underlying frames
-                // and update their position by offset
-                const GraphVertexDesc nodeVertex = control->storage->getGraph()->vertex(editedNode->getFrame());
-                const std::unordered_set<GraphVertexDesc>& children = control->storage->getGraphTreeView()->tree[nodeVertex].children;
-                // parse all underlying frames to get the stored nodes
-                for(const GraphVertexDesc child : children)
-                {
-                    // get all nodes in the frame
-                    using IteratorSimNode = envire::core::EnvireGraph::ItemIterator<SimNodeItem>;
-                    IteratorSimNode begin_sim, end_sim;
-                    boost::tie(begin_sim, end_sim) = control->storage->getGraph()->getItems<SimNodeItem>(child);
-                    // move all nodes by offset
-                    for (;begin_sim!=end_sim; begin_sim++)
-                    {
-                        begin_sim->getData()->setPositionOffset(offset);
-                    }
-                }
+                // then move recursive all nodes that are connected through
+                // joints to the node
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> joints = control->joints->getSimJoints();
+                if(editedNode->getData()->getGroupID())
+                    gids.push_back(editedNode->getData()->getGroupID());
+                NodeMap nodes = simNodes;
+                std::vector<std::shared_ptr<mars::sim::SimJoint>> jointsj = joints;
+                nodes.erase(nodes.find(editedNode->getData()->getID()));
+                moveNodeRecursive(nodeS->index, offset, &joints, &gids, &nodes);
             } else {
                 if(nodeS->relative_id) {
                     iMutex.unlock();
@@ -620,7 +611,7 @@ namespace mars {
         //else {
         //    updateNodes(0, false, false);    // update all nodes, also static ones
         //}
-        updateNodes(0, false, false);
+        updateDynamicNodes(0, false);
    }
 
     void EnvireNodeManager::changeGroup(mars::interfaces::NodeId id, int group) {
